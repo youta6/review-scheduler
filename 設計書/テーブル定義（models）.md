@@ -5,8 +5,8 @@
         <th style="border: 3px solid white; background-color: gray;">物理名</th>
         <th style="border: 3px solid white; background-color: gray;">型</th>
         <th style="border: 3px solid white; background-color: gray;">必須</th>
-        <th style="border: 3px solid white; background-color: gray;">最小値</th>
-        <th style="border: 3px solid white; background-color: gray;">最大値</th>
+        <th style="border: 3px solid white; background-color: gray;">最小桁</th>
+        <th style="border: 3px solid white; background-color: gray;">最大桁</th>
         <th style="border: 3px solid white; background-color: gray;">主キー</th>
         <th style="border: 3px solid white; background-color: gray;">一意</th>
         <th style="border: 3px solid white; background-color: gray;">外部キー</th>
@@ -61,6 +61,18 @@
         <td style="border: 1px solid white;">-</td>
     </tr>
     <tr>
+        <td style="border: 1px solid white;">管理者フラグ</td>
+        <td style="border: 1px solid white;">admin_flag</td>
+        <td style="border: 1px solid white;">BOOLEAN</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
         <td style="border: 1px solid white;">作成日</td>
         <td style="border: 1px solid white;">created_at</td>
         <td style="border: 1px solid white;">DATETIME</td>
@@ -95,8 +107,8 @@
         <th style="border: 3px solid white; background-color: gray;">物理名</th>
         <th style="border: 3px solid white; background-color: gray;">型</th>
         <th style="border: 3px solid white; background-color: gray;">必須</th>
-        <th style="border: 3px solid white; background-color: gray;">最小値</th>
-        <th style="border: 3px solid white; background-color: gray;">最大値</th>
+        <th style="border: 3px solid white; background-color: gray;">最小桁</th>
+        <th style="border: 3px solid white; background-color: gray;">最大桁</th>
         <th style="border: 3px solid white; background-color: gray;">主キー</th>
         <th style="border: 3px solid white; background-color: gray;">一意</th>
         <th style="border: 3px solid white; background-color: gray;">外部キー</th>
@@ -160,7 +172,7 @@
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">-</td>
-        <td style="border: 1px solid white;">デフォルトで作成日と同じ値</td>
+        <td style="border: 1px solid white;">-</td>
     </tr>
     <tr>
         <td style="border: 1px solid white;">作成日</td>
@@ -197,8 +209,8 @@
         <th style="border: 3px solid white; background-color: gray;">物理名</th>
         <th style="border: 3px solid white; background-color: gray;">型</th>
         <th style="border: 3px solid white; background-color: gray;">必須</th>
-        <th style="border: 3px solid white; background-color: gray;">最小値</th>
-        <th style="border: 3px solid white; background-color: gray;">最大値</th>
+        <th style="border: 3px solid white; background-color: gray;">最小桁</th>
+        <th style="border: 3px solid white; background-color: gray;">最大桁</th>
         <th style="border: 3px solid white; background-color: gray;">主キー</th>
         <th style="border: 3px solid white; background-color: gray;">一意</th>
         <th style="border: 3px solid white; background-color: gray;">外部キー</th>
@@ -263,5 +275,29 @@
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">作成日</td>
+        <td style="border: 1px solid white;">created_at</td>
+        <td style="border: 1px solid white;">DATETIME</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">更新日</td>
+        <td style="border: 1px solid white;">updated_at</td>
+        <td style="border: 1px solid white;">DATETIME</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">更新しない限り作成日と同じ値</td>
     </tr>
 </table>
