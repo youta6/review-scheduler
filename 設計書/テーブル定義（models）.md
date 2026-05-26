@@ -1,6 +1,12 @@
 # USER
 <table style="border-collapse: collapse;">
     <tr>
+        <th colspan="2" style="border: 3px solid white; background-color: gray;">テーブル論理名：</th>
+        <th colspan="2" style="border: 3px solid white;">ユーザー情報</th>
+        <th colspan="3" style="border: 3px solid white; background-color: gray;">テーブル物理名：</th>
+        <th colspan="3" style="border: 3px solid white;">USER</th>
+    </tr>
+    <tr>
         <th style="border: 3px solid white; background-color: gray;">論理名</th>
         <th style="border: 3px solid white; background-color: gray;">物理名</th>
         <th style="border: 3px solid white; background-color: gray;">型</th>
@@ -103,6 +109,12 @@
 # REVIEW
 <table style="border-collapse: collapse;">
     <tr>
+        <th colspan="2" style="border: 3px solid white; background-color: gray;">テーブル論理名：</th>
+        <th colspan="2" style="border: 3px solid white;">復習情報</th>
+        <th colspan="3" style="border: 3px solid white; background-color: gray;">テーブル物理名：</th>
+        <th colspan="3" style="border: 3px solid white;">REVIEW</th>
+    </tr>
+    <tr>
         <th style="border: 3px solid white; background-color: gray;">論理名</th>
         <th style="border: 3px solid white; background-color: gray;">物理名</th>
         <th style="border: 3px solid white; background-color: gray;">型</th>
@@ -204,6 +216,12 @@
 
 # REVIEW_MANAGEMENT
 <table style="border-collapse: collapse;">
+    <tr>
+        <th colspan="2" style="border: 3px solid white; background-color: gray;">テーブル論理名：</th>
+        <th colspan="2" style="border: 3px solid white;">復習管理情報</th>
+        <th colspan="3" style="border: 3px solid white; background-color: gray;">テーブル物理名：</th>
+        <th colspan="3" style="border: 3px solid white;">REVIEW_MANAGEMENT</th>
+    </tr>
     <tr>
         <th style="border: 3px solid white; background-color: gray;">論理名</th>
         <th style="border: 3px solid white; background-color: gray;">物理名</th>
