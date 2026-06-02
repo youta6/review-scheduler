@@ -4,13 +4,18 @@ from app.models import User, Review, ReviewManagement
 from pwdlib import PasswordHash
 from pwdlib.hashers.bcrypt import BcryptHasher
 
-pwd_context = PasswordHash([BcryptHasher()])
+# pwd_context = PasswordHash([BcryptHasher()])
 
 """
 ===ユーザー作成===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー作成.md
 """
-def create_user(db: Session, username: str, hashed_password: str, admin_flag: bool = False) -> User:
+def create_user(
+    db: Session,
+    username: str,
+    hashed_password: str,
+    admin_flag: bool = False
+) -> User:
     # 1. 現在日時取得
     today = datetime.now(timezone.utc)
 
@@ -34,6 +39,46 @@ def create_user(db: Session, username: str, hashed_password: str, admin_flag: bo
     )
     return new_user_response
 
+
+"""
+===ユーザー情報更新===
+設計書："review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報更新.md
+"""
+def update_user(
+    db: Session,
+    user_name_before: str,
+    hashed_password_before: str,
+    user_name_after: str = None,
+    hashed_password_after: str = None,
+) -> User:
+    # 1. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 2. ユーザー情報更新
+    # 2. (1) USERテーブルを更新
+    user = db.query(User).filter(
+        User.user_name == user_name_before,
+        User.hashed_password == hashed_password_before
+    ).first()
+    if not user:
+        # 3. 返り値を設定
+        return None  # ユーザーが見つからない場合はNoneを返す
+    if user_name_after:
+        user.user_name = user_name_after
+    if hashed_password_after:
+        user.hashed_password = hashed_password_after
+    user.updated_at = today
+    db.commit()
+    db.refresh(user)
+    updated_user_response = User(
+        user_name=user.user_name,
+        updated_at=today
+    )
+
+    # 3. 返り値を設定
+    return updated_user_response
+
+
 """
 全ユーザーを取得
 """
@@ -45,21 +90,6 @@ def get_users(db: Session):
 """
 def get_user(db: Session, user_id: int) -> User:
     return db.query(User).filter(User.id == user_id).first()
-
-"""
-ユーザー情報更新
-"""
-def update_user(db: Session, user_id: int, username: str = None, password: str = None) -> User:
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return None  # ユーザーが見つからない場合はNoneを返す
-    if username:
-        user.username = username
-    if password:
-        user.hashed_password = pwd_context.hash(password)
-    db.commit()
-    db.refresh(user)
-    return user
 
 """
 ユーザー情報削除

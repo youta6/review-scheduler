@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
-from app.schemas import TokenResponse, UserGetForAuthResponse
+from app.schemas import TokenResponse, UserValidationResponse
 from app.database import get_db
 
 # to get a string like this run:
@@ -32,8 +32,8 @@ def get_password_hash(password):
     return password_hash.hash(password)
 
 # ユーザー情報をDBから取得する関数
-def get_user_for_auth(db: Session, username: str) -> UserGetForAuthResponse | None:
-    user = db.query(UserGetForAuthResponse).filter(UserGetForAuthResponse.username == username).first()
+def get_user_for_auth(db: Session, username: str) -> UserValidationResponse | None:
+    user = db.query(UserValidationResponse).filter(UserValidationResponse.username == username).first()
     return user
 
 '''
@@ -43,7 +43,7 @@ def get_user_for_auth(db: Session, username: str) -> UserGetForAuthResponse | No
 async def get_current_active_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db),
-):
+)-> UserValidationResponse:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="資格情報を検証できませんでした",
@@ -59,13 +59,13 @@ async def get_current_active_user(
         # 1.(2)② 例外処理
         if username is None:
             raise credentials_exception
-        token_data = UserGetForAuthResponse(username=username)
+        token_data = UserValidationResponse(username=username)
     except InvalidTokenError:
         raise credentials_exception
     
     # 2. 登録ユーザー取得
     # 2.(1) ユーザー情報をDBから取得する
-    user = get_user_for_auth(db, username=token_data.username)
+    user = get_user_for_auth(db, username=token_data.user_name)
     # 2.(2) 例外処理
     if user is None:
         raise credentials_exception
@@ -111,7 +111,7 @@ async def generate_token(
     
     # 2. アクセストークンの発行
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode = {"sub": user.username}.copy()
+    to_encode = {"sub": user.user_name}.copy()
     if access_token_expires:
         expire = datetime.now(timezone.utc) + access_token_expires
     else:
