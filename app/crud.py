@@ -106,16 +106,21 @@ def delete_user(db: Session, user_name: str, hashed_password: str) -> User:
 
 
 """
+===ユーザー情報取得===
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報取得.md
+"""
+def get_user(db: Session, user_name: str) -> User:
+    return db.query(User).filter(
+        User.user_name == user_name,
+        User.delete_flag == False
+    ).first()
+
+
+"""
 全ユーザーを取得
 """
 def get_users(db: Session):
     return db.query(User).all()
-
-"""
-特定のユーザーを取得
-"""
-def get_user(db: Session, user_id: int) -> User:
-    return db.query(User).filter(User.id == user_id).first()
 
 """
 復習項目を作成

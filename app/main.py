@@ -15,6 +15,8 @@ from app.schemas import(
     UserUpdateResponse,
     UserDeleteRequest,
     UserDeleteResponse,
+    UserGetRequest,
+    UserGetResponse,
 )
 from app.crud import(
     create_user,
@@ -195,19 +197,59 @@ def delete_user_endpoint(
     )
 
 
+'''
+===ユーザー情報取得===
+設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報取得.md
+'''
+@app.get("/users/{user_id}")
+def read_user_endpoint(
+    user_get_request: UserGetRequest,
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+)-> UserGetResponse:
+    # 1. ユーザー情報取得
+    # 1.(1) ログインユーザー検証結果と入力値により処理分岐
+    if user_get_request.user_name is None\
+        or user_get_request.user_name == auth.user_name:
+        # ログインユーザー検証．レスポンスを取得対象ユーザーとしてレスポンス
+        return UserGetResponse(
+            user_id=auth.user_id,
+            user_name=auth.user_name,
+            delete_flag=auth.delete_flag,
+            user_kind="管理者" if auth.admin_flag else "一般",
+            created_at=auth.updated_at,
+            updated_at=auth.updated_at
+        )
+    else:
+        if auth.admin_flag == True:
+            user_name = user_get_request.user_name
+        else:
+            # 1.(2) 例外処理
+            raise HTTPException(status_code=401, detail="他者のユーザー情報は取得できません")
+    
+    # 1.(3) ユーザー情報取得
+    user = get_user(db, user_name=user_name)
+
+    # 1.(4) 例外処理
+    if not user:
+        raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
+    
+    # 2. 返り値を設定
+    return UserGetResponse(
+        user_id=user.id,
+        user_name=user.user_name,
+        delete_flag=user.delete_flag,
+        user_kind="管理者" if user.admin_flag else "一般",
+        created_at=user.created_at,
+        updated_at=user.updated_at
+    )
+
+
 # 全ユーザーを取得
 @app.get("/users")
 def read_users_endpoint(db: Session = Depends(get_db)):
     users = get_users(db)
     return [{"id": user.id, "username": user.username} for user in users]
-
-# 特定のユーザーを取得
-@app.get("/users/{user_id}")
-def read_user_endpoint(user_id: int, db: Session = Depends(get_db)):
-    user = get_user(db, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return {"id": user.id, "username": user.username}
 
 # 復習項目を作成
 @app.post("/users/{user_id}/reviews")
