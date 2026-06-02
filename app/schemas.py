@@ -60,6 +60,9 @@ class UserDeleteRequest(UserBase):
 class UserDeleteResponse(UserBase):
     updated_at: datetime
 
+class UserGetRequest(UserBase):
+    pass
+
 class UserGetResponse(UserBase):
     user_id: int
     user_name: str
