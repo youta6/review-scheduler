@@ -45,13 +45,14 @@ class UserCreateResponse(UserBase):
     user_kind: str
     created_at: datetime
 
-class User(UserBase):
-    id: int
-    is_active: bool
-    token: str
-    reviews: List[Review] = []
+class UserUpdateRequest(BaseModel):
+    user_name_before: str | None = Field(default=None, min_length=1, max_length=50)
+    password_before: str | None = Field(default=None, min_length=1, max_length=32)
+    user_name_after: str | None = Field(default=None, min_length=1, max_length=50)
+    password_after: str | None = Field(default=None, min_length=1, max_length=32)
 
-    # model_config = ConfigDict(from_attributes=True)
+class UserUpdateResponse(UserBase):
+    updated_at: datetime
 
 class UserGetResponse(UserBase):
     user_id: int
@@ -70,9 +71,8 @@ class TokenResponse(BaseModel):
 
 class UserValidationResponse(BaseModel):
     user_id: int
-    username: str
-    admin_flag: bool
-
-class UserGetForAuthResponse(UserBase):
-    hash_password: str
+    user_name: str
+    hashed_password: str
     delete_flag: bool
+    admin_flag: bool
+    updated_at: datetime

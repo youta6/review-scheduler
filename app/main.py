@@ -1,12 +1,19 @@
 import os
 from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
+from typing import Annotated
 from sqlalchemy.orm import Session
 from app import schemas
 from pwdlib import PasswordHash
 from pwdlib.hashers.bcrypt import BcryptHasher
-from app.schemas import UserCreateRequest, UserCreateResponse
 from app.database import get_db, create_tables
+from app.auth import get_current_active_user
+from app.schemas import(
+    UserCreateRequest,
+    UserCreateResponse,
+    UserUpdateRequest,
+    UserUpdateResponse,
+)
 from app.crud import(
     create_user,
     get_user,
@@ -47,7 +54,10 @@ def health_check(db: Session = Depends(get_db)) -> schemas.HealthCheck:
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー作成.md
 '''
 @app.post("/users")
-def create_user_endpoint(user_create_request: UserCreateRequest, db: Session = Depends(get_db)):
+def create_user_endpoint(
+    user_create_request: UserCreateRequest,
+    db: Session = Depends(get_db)
+) -> UserCreateResponse:
     # 1. 管理者確認
     load_dotenv()
     ADMIN_SECRET_KEY_NAME = os.getenv("ADMIN_SECRET_KEY_NAME")
@@ -77,6 +87,74 @@ def create_user_endpoint(user_create_request: UserCreateRequest, db: Session = D
     except Exception:
         raise HTTPException(status_code=409, detail="入力したユーザー名は既に登録されています")
 
+'''
+===ユーザー情報更新===
+設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報更新.md
+'''
+@app.put("/users/{user_id}")
+def update_user_endpoint(
+    user_update_request: UserUpdateRequest,
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db),
+)-> UserUpdateResponse:
+    # 1. 入力値チェック
+    # 1.(1) 入力値．変更後ユーザー名、入力値．変更後パスワードがともに未入力の場合、
+    # ログインユーザー検証．レスポンスを基に返り値を設定
+    if user_update_request.user_name_after is None\
+        and user_update_request.password_after is None:
+        # 4. 返り値を設定
+        return UserUpdateResponse(
+            user_name=auth.user_name,
+            updated_at=auth.updated_at
+        )
+    
+    # 2. 更新対象ユーザー設定
+    # 2.(1) ログインユーザー検証結果と入力値により処理分岐
+    if user_update_request.user_name_before is None\
+            or user_update_request.user_name_before == auth.user_name:
+            user_name_before = auth.user_name
+            if user_update_request.user_name_before is None\
+                and user_update_request.password_before is None:
+                hashed_password_before = auth.hashed_password
+            else:
+                hashed_password_before = pwd_context.hash(user_update_request.password_before)
+    else:
+        if auth.admin_flag == True:
+            user_name_before = user_update_request.user_name_before
+            hashed_password_before = pwd_context.hash(user_update_request.password_before)
+        else:
+            # 2.(2) 例外処理
+            raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
+    if user_update_request.user_name_after is None:
+        user_name_after = auth.user_name
+    else:
+        user_name_after = user_update_request.user_name_after
+    if user_update_request.password_after is None:
+        hashed_password_after = auth.hashed_password
+    else:
+        hashed_password_after = pwd_context.hash(user_update_request.password_after)
+    
+    # 3. ユーザー情報更新
+    # 3.(1) メソッド呼び出し
+    user = update_user(
+        db,
+        user_name_before=user_name_before,
+        hashed_password_before=hashed_password_before,
+        user_name_after=user_name_after,
+        hashed_password_after=hashed_password_after
+    )
+
+    # 3.(2) 例外処理
+    if user is None:
+        raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
+    
+    # 4. 返り値を設定
+    return UserUpdateResponse(
+        user_name=user.user_name,
+        updated_at=user.updated_at
+    )
+
+
 # 全ユーザーを取得
 @app.get("/users")
 def read_users_endpoint(db: Session = Depends(get_db)):
@@ -90,19 +168,6 @@ def read_user_endpoint(user_id: int, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"id": user.id, "username": user.username}
-
-# ユーザー情報更新
-@app.put("/users/{user_id}")
-def update_user_endpoint(user_id: int, username: str, password: str, db: Session = Depends(get_db)):
-    try:
-        user = update_user(db, user_id=user_id, username=username, password=password)
-        if user is None:
-            # 見つからない場合はエラーを返す
-            raise HTTPException(status_code=404, detail="User not found")
-        # 見つかった場合は、更新
-        return {"id": user.id, "username": user.username}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 # ユーザー削除
 @app.delete("/users/{user_id}")
