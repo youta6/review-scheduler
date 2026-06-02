@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, Field
 
 
 class HealthCheck(BaseModel):
@@ -35,7 +35,7 @@ class Review(ReviewBase):
 
 
 class UserBase(BaseModel):
-    user_name: str
+    user_name: str = Field(min_length=1, max_length=50)
 
 
 class UserCreate(UserBase):
@@ -49,3 +49,30 @@ class User(UserBase):
     reviews: List[Review] = []
 
     # model_config = ConfigDict(from_attributes=True)
+
+class UserGetResponse(UserBase):
+    user_id: int
+    user_name: str
+    delete_flag: bool
+    user_kind: str
+    created_at: datetime
+    updated_at: datetime
+
+class UserCreateRequest(UserBase):
+    password: str = Field(min_length=1, max_length=32)
+
+class TokenRequest(UserCreateRequest):
+    pass
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+
+class UserValidationResponse(BaseModel):
+    user_id: int
+    username: str
+    admin_flag: bool
+
+class UserGetForAuthResponse(UserBase):
+    hash_password: str
+    delete_flag: bool
