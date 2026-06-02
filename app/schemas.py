@@ -54,6 +54,12 @@ class UserUpdateRequest(BaseModel):
 class UserUpdateResponse(UserBase):
     updated_at: datetime
 
+class UserDeleteRequest(UserBase):
+    password: str = Field(min_length=1, max_length=32)
+
+class UserDeleteResponse(UserBase):
+    updated_at: datetime
+
 class UserGetResponse(UserBase):
     user_id: int
     user_name: str

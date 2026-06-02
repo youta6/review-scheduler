@@ -33,16 +33,15 @@ def create_user(
     db.refresh(new_user)
 
     # 3. 返り値を設定
-    new_user_response = User(
+    return User(
         username=username,
         created_at=today
     )
-    return new_user_response
 
 
 """
 ===ユーザー情報更新===
-設計書："review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報更新.md
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報更新.md
 """
 def update_user(
     db: Session,
@@ -70,13 +69,40 @@ def update_user(
     user.updated_at = today
     db.commit()
     db.refresh(user)
-    updated_user_response = User(
+
+    # 3. 返り値を設定
+    return User(
         user_name=user.user_name,
         updated_at=today
     )
 
+
+"""
+===ユーザー情報削除===
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報削除.md
+"""
+def delete_user(db: Session, user_name: str, hashed_password: str) -> User:
+    # 1. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 2. ユーザー情報削除
+    # 2.(1) USERテーブルを更新
+    user = db.query(User).filter(
+        User.user_name == user_name,
+        User.hashed_password == hashed_password
+    ).first()
+    if not user:
+        return None  # ユーザーが見つからない場合はNoneを返す
+    user.delete_flag = True
+    user.updated_at = today
+    db.commit()
+    db.refresh(user)
+
     # 3. 返り値を設定
-    return updated_user_response
+    return User(
+        user_name=user.user_name,
+        updated_at=today
+    )
 
 
 """
@@ -90,17 +116,6 @@ def get_users(db: Session):
 """
 def get_user(db: Session, user_id: int) -> User:
     return db.query(User).filter(User.id == user_id).first()
-
-"""
-ユーザー情報削除
-"""
-def delete_user(db: Session, user_id: int) -> bool:
-    user = db.query(User).filter(User.id == user_id).first()
-    if not user:
-        return False  # ユーザーが見つからない場合はFalseを返す
-    db.delete(user)
-    db.commit()
-    return True
 
 """
 復習項目を作成

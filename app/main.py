@@ -13,6 +13,8 @@ from app.schemas import(
     UserCreateResponse,
     UserUpdateRequest,
     UserUpdateResponse,
+    UserDeleteRequest,
+    UserDeleteResponse,
 )
 from app.crud import(
     create_user,
@@ -154,6 +156,44 @@ def update_user_endpoint(
         updated_at=user.updated_at
     )
 
+'''
+===ユーザー削除===
+設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報削除.md
+'''
+@app.delete("/users/{user_id}")
+def delete_user_endpoint(
+    user_delete_request: UserDeleteRequest,
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+)-> UserDeleteResponse:
+    # 1. 削除対象ユーザー設定
+    # 1.(1) ログインユーザー検証結果と入力値により処理分岐
+    if user_delete_request.user_name is None\
+        or user_delete_request.user_name == auth.user_name:
+        user_name = auth.user_name
+        hashed_password = auth.hashed_password
+    else:
+        if auth.admin_flag == True:
+            user_name = user_delete_request.user_name
+            hashed_password = pwd_context.hash(user_delete_request.password)
+        else:
+            # 1.(2) 例外処理
+            raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
+
+    # 2. ユーザー情報削除
+    # 2.(1) メソッド呼び出し
+    user = delete_user(db, user_name=user_name, hashed_password=hashed_password)
+
+    # 2.(2) 例外処理
+    if not user:
+        raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
+    
+    # 3. 返り値を設定
+    return UserDeleteResponse(
+        user_name=user.user_name,
+        updated_at=user.updated_at
+    )
+
 
 # 全ユーザーを取得
 @app.get("/users")
@@ -168,20 +208,6 @@ def read_user_endpoint(user_id: int, db: Session = Depends(get_db)):
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     return {"id": user.id, "username": user.username}
-
-# ユーザー削除
-@app.delete("/users/{user_id}")
-def delete_user_endpoint(user_id: int, db: Session = Depends(get_db)):
-    # ユーザーを削除
-    try:
-        result = delete_user(db, user_id)
-        if not result:
-            # 見つからない場合はエラーを返す
-            raise HTTPException(status_code=404, detail="User not found")
-        # 見つかった場合は削除
-        return "delete success"
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
 
 # 復習項目を作成
 @app.post("/users/{user_id}/reviews")
