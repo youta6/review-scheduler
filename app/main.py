@@ -1,10 +1,30 @@
+import os
+from dotenv import load_dotenv
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from app.database import get_db, create_tables
-from app.crud import create_user, get_user, get_users, update_user, delete_user, create_review, get_reviews, update_review, delete_review, create_review_management, update_review_management, delete_review_management
 from app import schemas
+from pwdlib import PasswordHash
+from pwdlib.hashers.bcrypt import BcryptHasher
+from app.schemas import UserCreateRequest, UserCreateResponse
+from app.database import get_db, create_tables
+from app.crud import(
+    create_user,
+    get_user,
+    get_users,
+    update_user,
+    delete_user,
+    create_review,
+    get_reviews,
+    update_review,
+    delete_review,
+    create_review_management,
+    update_review_management,
+    delete_review_management,
+)
 
 app = FastAPI()
+
+pwd_context = PasswordHash([BcryptHasher()])
 
 # サーバー起動時にテーブル作成
 create_tables()
@@ -22,14 +42,40 @@ def health_check(db: Session = Depends(get_db)) -> schemas.HealthCheck:
 #def read_item(item_id: int, q: str | None = None):
 #    return {"item_id": item_id, "q": q}
 
-# ユーザー作成
+'''
+===ユーザー作成===
+設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー作成.md
+'''
 @app.post("/users")
-def create_user_endpoint(username: str, password: str, db: Session = Depends(get_db)):
+def create_user_endpoint(user_create_request: UserCreateRequest, db: Session = Depends(get_db)):
+    # 1. 管理者確認
+    load_dotenv()
+    ADMIN_SECRET_KEY_NAME = os.getenv("ADMIN_SECRET_KEY_NAME")
+    ADMIN_SECRET_KEY_PASSWORD = os.getenv("ADMIN_SECRET_KEY_PASSWORD")
+    admin_flag = False
+    if user_create_request.user_name == ADMIN_SECRET_KEY_NAME and user_create_request.password == ADMIN_SECRET_KEY_PASSWORD:
+        admin_flag = True
+
     try:
-        user = create_user(db, username=username, password=password)
-        return {"id": user.id, "username": user.username}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        # 2. ユーザー登録
+        # 2.(1) メソッド呼び出し
+        user = create_user(
+            db,
+            username=user_create_request.user_name,
+            hashed_password=pwd_context.hash(user_create_request.password),
+            admin_flag=admin_flag
+        )
+
+        # 3. 返り値を設定
+        return UserCreateResponse(
+            user_name=user.user_name,
+            user_kind="管理者" if admin_flag else "一般",
+            created_at=user.created_at
+        )
+    
+    # 2.(2) 例外処理
+    except Exception:
+        raise HTTPException(status_code=409, detail="入力したユーザー名は既に登録されています")
 
 # 全ユーザーを取得
 @app.get("/users")
