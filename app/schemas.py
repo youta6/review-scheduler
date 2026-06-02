@@ -38,9 +38,12 @@ class UserBase(BaseModel):
     user_name: str = Field(min_length=1, max_length=50)
 
 
-class UserCreate(UserBase):
-    password: str
+class UserCreateRequest(UserBase):
+    password: str = Field(min_length=1, max_length=32)
 
+class UserCreateResponse(UserBase):
+    user_kind: str
+    created_at: datetime
 
 class User(UserBase):
     id: int
@@ -57,9 +60,6 @@ class UserGetResponse(UserBase):
     user_kind: str
     created_at: datetime
     updated_at: datetime
-
-class UserCreateRequest(UserBase):
-    password: str = Field(min_length=1, max_length=32)
 
 class TokenRequest(UserCreateRequest):
     pass

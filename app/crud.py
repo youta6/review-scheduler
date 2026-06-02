@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from app.models import User, Review, ReviewManagement
 from pwdlib import PasswordHash
 from pwdlib.hashers.bcrypt import BcryptHasher
@@ -7,15 +7,32 @@ from pwdlib.hashers.bcrypt import BcryptHasher
 pwd_context = PasswordHash([BcryptHasher()])
 
 """
-ユーザー作成
+===ユーザー作成===
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー作成.md
 """
-def create_user(db: Session, username: str, password: str) -> User:
-    hashed_password = pwd_context.hash(password)
-    new_user = User(username=username, hashed_password=hashed_password)
+def create_user(db: Session, username: str, hashed_password: str, admin_flag: bool = False) -> User:
+    # 1. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 2. ユーザー情報登録
+    # 2.(1) USERテーブルに登録
+    new_user = User(
+        username=username,
+        hashed_password=hashed_password,
+        admin_flag=admin_flag,
+        created_at=today,
+        updated_at=today
+        )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
-    return new_user
+
+    # 3. 返り値を設定
+    new_user_response = User(
+        username=username,
+        created_at=today
+    )
+    return new_user_response
 
 """
 全ユーザーを取得
