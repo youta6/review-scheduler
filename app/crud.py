@@ -117,10 +117,14 @@ def get_user(db: Session, user_name: str) -> User:
 
 
 """
-全ユーザーを取得
+===全ユーザー情報取得===
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\全ユーザー情報取得.md
 """
-def get_users(db: Session):
+def get_users(db: Session) -> list[User]:
+    # 1. 全ユーザー情報取得
+    # 2. 返り値を設定
     return db.query(User).all()
+
 
 """
 復習項目を作成
