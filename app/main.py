@@ -244,13 +244,53 @@ def read_user_endpoint(
         updated_at=user.updated_at
     )
 
-
-# 全ユーザーを取得
+'''
+===全ユーザー情報取得===
+設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\全ユーザー情報取得.md
+'''
 @app.get("/users")
-def read_users_endpoint(db: Session = Depends(get_db)):
-    users = get_users(db)
-    return [{"id": user.id, "username": user.username} for user in users]
+def get_all_user_endpoint(
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+) -> list[UserGetResponse]:
+    # 1. ユーザー情報取得
+    # 1.(1) ログインユーザー検証．管理者フラグ=Trueの場合、全ユーザーを取得
+    if auth.admin_flag == True:
+        # 1.(1)① メソッド呼び出し
+        users = get_users(db)
 
+        # 1.(1)② 例外処理
+        if not users:
+            raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
+        
+        # 2. 返り値を設定
+        return [
+            UserGetResponse(
+                user_id=user.id,
+                user_name=user.user_name,
+                delete_flag=user.delete_flag,
+                user_kind="管理者" if user.admin_flag else "一般",
+                created_at=user.created_at,
+                updated_at=user.updated_at
+            ) for user in users
+        ]
+    
+    # 1.(2) ログインユーザー検証．管理者フラグ=Falseの場合、ログインユーザー検証．レスポンスを返り値に設定する
+    else:
+        
+        # 2. 返り値を設定
+        return [
+            UserGetResponse(
+                user_id=auth.user_id,
+                user_name=auth.user_name,
+                delete_flag=auth.delete_flag,
+                user_kind="管理者" if auth.admin_flag else "一般",
+                created_at=auth.created_at,
+                updated_at=auth.updated_at
+            )
+        ]
+
+        
 # 復習項目を作成
 @app.post("/users/{user_id}/reviews")
 def create_review_endpoint(

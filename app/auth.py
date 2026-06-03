@@ -32,8 +32,8 @@ def get_password_hash(password):
     return password_hash.hash(password)
 
 # ユーザー情報をDBから取得する関数
-def get_user_for_auth(db: Session, username: str) -> UserValidationResponse | None:
-    user = db.query(UserValidationResponse).filter(UserValidationResponse.username == username).first()
+def get_user_for_auth(db: Session, user_name: str) -> UserValidationResponse | None:
+    user = db.query(UserValidationResponse).filter(UserValidationResponse.user_name == user_name).first()
     return user
 
 '''
@@ -55,17 +55,17 @@ async def get_current_active_user(
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         # 1.(2) トークンのユーザー名検証
         # 1.(2)① デコードされたトークン（ペイロード）から、ユーザー名を取得する
-        username = payload.get("sub")
+        user_name = payload.get("sub")
         # 1.(2)② 例外処理
-        if username is None:
+        if user_name is None:
             raise credentials_exception
-        token_data = UserValidationResponse(username=username)
+        token_data = UserValidationResponse(user_name=user_name)
     except InvalidTokenError:
         raise credentials_exception
     
     # 2. 登録ユーザー取得
     # 2.(1) ユーザー情報をDBから取得する
-    user = get_user_for_auth(db, username=token_data.user_name)
+    user = get_user_for_auth(db, user_name=token_data.user_name)
     # 2.(2) 例外処理
     if user is None:
         raise credentials_exception

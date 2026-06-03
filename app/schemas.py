@@ -84,4 +84,5 @@ class UserValidationResponse(BaseModel):
     hashed_password: str
     delete_flag: bool
     admin_flag: bool
+    created_at: datetime
     updated_at: datetime
