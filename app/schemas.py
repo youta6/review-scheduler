@@ -9,13 +9,22 @@ class HealthCheck(BaseModel):
 
 
 class ReviewBase(BaseModel):
-    review: str
-    description: str | None = None
+    review_item: str | None = Field(default=None, min_length=1, max_length=200)
+    description: str | None = Field(default=None, min_length=1, max_length=1000)
 
+class ReviewCreateRequest(BaseModel):
+    review_item: str = Field(min_length=1, max_length=200)
+    description: str | None = Field(default=None, min_length=1, max_length=1000)
+    study_date: datetime | None = None
 
-class ReviewCreate(ReviewBase):
-    pass
+class ReviewSchedule(BaseModel):
+    review_time: str | None = Field(default=None, min_length=1, max_length=1)
+    review_date: datetime | None = None
 
+class ReviewCreateResponse(BaseModel):
+    review_item: str | None = Field(default=None, min_length=1, max_length=200)
+    study_date: datetime | None = None
+    review_schedule_list: List[ReviewSchedule] | None = None
 
 class ReviewUpdate(ReviewBase):
     user_id: int
