@@ -12,6 +12,17 @@ class ReviewBase(BaseModel):
     review_item: str | None = Field(default=None, min_length=1, max_length=200)
     description: str | None = Field(default=None, min_length=1, max_length=1000)
 
+
+class ReviewScheduleWithDoneFlag(BaseModel):
+    review_time = int | None = Field(default=None, min_length=1, max_length=1)
+    review_date = datetime
+    done_status = str
+
+
+class ReviewScheduleWithDoneFlagBase(ReviewBase):
+    review_schedule_with_done_flag_list = list[ReviewScheduleWithDoneFlag]
+
+
 class ReviewCreateRequest(BaseModel):
     review_item: str = Field(min_length=1, max_length=200)
     description: str | None = Field(default=None, min_length=1, max_length=1000)
@@ -26,21 +37,15 @@ class ReviewCreateResponse(BaseModel):
     study_date: datetime | None = None
     review_schedule_list: List[ReviewSchedule] | None = None
 
-class ReviewUpdate(ReviewBase):
-    user_id: int
-    review_id: int
+class ReviewUpdateRequest(ReviewBase):
+    review_id: int = Field(default=None, min_length=1, max_length=3)
+    review_time: int | None = Field(default=None, min_length=1, max_length=1)
     done_flag: bool | None = None
-    update_date: datetime | None = None
 
 
-class Review(ReviewBase):
-    id: int
-    owner_id: int
-    done_flag: bool
-    created_at: datetime
-    update_date: datetime | None = None
+class ReviewUpdateResponse(ReviewScheduleWithDoneFlagBase):
+    pass
 
-    # model_config = ConfigDict(from_attributes=True)
 
 
 class UserBase(BaseModel):

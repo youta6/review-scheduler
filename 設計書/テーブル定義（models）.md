@@ -265,7 +265,7 @@
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">1</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">1</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">1つのreview_id毎に1～5</td>

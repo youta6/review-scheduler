@@ -21,7 +21,11 @@ from app.schemas import(
     ReviewCreateRequest,
     ReviewCreateResponse,
     ReviewSchedule,
+    ReviewUpdateRequest,
+    ReviewUpdateResponse,
+    ReviewScheduleWithDoneFlag,
 )
+from app.models import ReviewManagement
 from app.crud import(
     create_user,
     get_user,
@@ -34,6 +38,7 @@ from app.crud import(
     delete_review,
     create_review_management,
     update_review_management,
+    update_all_review_management,
     delete_review_management,
 )
 
@@ -366,31 +371,112 @@ def create_review_endpoint(
         ]
     )
 
+
+"""
+===復習項目を更新===
+設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作\復習項目更新.md
+"""
+@app.patch("/users/{user_id}/reviews/{review_id}")
+def update_review_endpoint(
+    review_update_request: ReviewUpdateRequest,
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+)-> list[ReviewUpdateResponse]:
+    # 1. ユーザー存在チェック
+    if auth.delete_flag:
+        raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
+    
+    # 2. 入力値チェック
+    # 復習項目、復習内容詳細、復習回のいずれも設定されていない
+    if (review_update_request.review_item is None or review_update_request.review_item == "")\
+        and (review_update_request.description is None or review_update_request.description == "")\
+        and review_update_request.review_time is None:
+            raise HTTPException(status_code=422, detail="復習項目、復習内容詳細、復習回のいずれかに入力必須です。")
+    # 復習回が設定され、対応済みフラグが未設定
+    if review_update_request.review_time\
+        and review_update_request.done_flag is None:
+            raise HTTPException(status_code=422, detail="復習回を指定する場合、対応状況も指定してください。")
+
+    # 3. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 4. 復習情報更新
+    # 4.(1) 復習項目、復習内容詳細のいずれかが設定されている場合、メソッド呼び出し
+    if (review_update_request.review_item is not None and review_update_request.review_item != "")\
+        or (review_update_request.description is not None and review_update_request.description != ""):
+        updated_review = update_review(
+            db,
+            user_id=auth.user_id,
+            review_id=review_update_request.review_id,
+            today=today,
+            review_item=review_update_request.review_item,
+            description=review_update_request.description
+        )
+        # 4.(2) 例外処理
+        if updated_review is None:
+            raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
+        
+    # 5. 復習管理情報更新
+    # 5.(1) 復習回、対応済みフラグが設定されている場合、以下メソッド呼び出し
+    updated_review_management_list: list[ReviewManagement] = []
+    update_review_management_flag = False
+    if review_update_request.review_time is not None\
+        and review_update_request.done_flag is not None:
+        updated_review_management_list = update_review_management(
+            db,
+            user_id=auth.user_id,
+            review_id=review_update_request.review_id,
+            review_time=review_update_request.review_time,
+            done_flag=review_update_request.done_flag
+        )
+        update_review_management_flag = True
+
+    # 5.(2) 復習回が未設定、対応済みフラグが設定されている場合、以下メソッド呼び出し
+    update_all_review_management_flag = False
+    if review_update_request.review_time is None\
+        and review_update_request.done_flag is not None:
+        updated_review_management_list = update_all_review_management(
+            db,
+            user_id=auth.user_id,
+            review_id=review_update_request.review_id,
+            done_flag=review_update_request.done_flag
+        )
+        update_all_review_management_flag = True
+    
+    # 5.(3) 例外処理
+    if updated_review_management_list is None:
+        raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
+
+    db.commit()
+    db.refresh(updated_review)
+    if update_review_management_flag:
+        db.refresh(updated_review_management)
+    if update_all_review_management_flag:
+        for updated_review_management in updated_review_management_list:
+            db.refresh(updated_review_management)
+
+    # 6. 返り値を設定
+    return [
+        ReviewUpdateResponse(
+            review_item=updated_review.review_item,
+            description=updated_review.description,
+            review_schedule_with_done_flag_list=[
+                ReviewScheduleWithDoneFlag(
+                    review_time=updated_review_management.review_time,
+                    review_date=updated_review_management.review_date,
+                    done_status="済" if updated_review_management.done_flag else "未済"
+                ) for updated_review_management in updated_review_management_list
+            ]
+        )
+    ]
+
+
 # 復習項目を取得
 @app.get("/users/{user_id}/reviews")
 def read_reviews_endpoint(user_id: int, db: Session = Depends(get_db)):
     try:
         reviews = get_reviews(db, user_id=user_id)
         return [{"id": review.id, "review": review.review, "description": review.description} for review in reviews]
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-# 復習項目を更新
-@app.put("/users/{user_id}/reviews/{review_id}")
-def update_review_endpoint(review: schemas.ReviewUpdate, db: Session = Depends(get_db)):
-    try:
-        updated_review = update_review(db, user_id=review.user_id, review_id=review.review_id, review=review.review, description=review.description)
-        if updated_review is None:
-            raise HTTPException(status_code=404, detail="Review not found")
-        if review.review_time is not None and review.done_flag is not None:
-            updated_review_management = update_review_management(db, user_id=review.user_id, review_id=review.review_id, review_time=review.review_time, done_flag=review.done_flag)
-        db.commit()
-        db.refresh(updated_review)
-        db.refresh(updated_review_management)
-        if review.review_time is not None and review.done_flag is not None:
-            return {"id": updated_review.id, "review": updated_review.review, "description": updated_review.description, "review_time": updated_review_management.review_time, "done_flag": updated_review_management.done_flag}
-        else:
-            return {"id": updated_review.id, "review": updated_review.review, "description": updated_review.description}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 

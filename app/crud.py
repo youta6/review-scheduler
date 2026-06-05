@@ -193,6 +193,107 @@ def create_review_management(
     return new_review_managements
 
 
+"""
+===復習情報更新===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習情報更新.md
+"""
+def update_review(
+    db: Session,
+    user_id: int,
+    review_id: int,
+    today: datetime,
+    review_item: str = None,
+    description: str = None,
+) -> Review | None:
+    # 1. 復習情報更新
+    # 1.(1) REVIEWテーブルを更新
+    review = db.query(Review).filter(
+        Review.user_id == user_id,
+        Review.review_id == review_id
+    ).first()
+
+    if not review:
+        # 2. 返り値を設定
+        return None # ユーザーが見つからない場合はNoneを返す
+    
+    # 1.(1) REVIEWテーブルを更新（つづき）
+    if review:
+        review.review_item = review_item
+    if description:
+        review.description = description
+    review.updated_at = today
+
+    # コミットとリフレッシュは呼び出し元で行う
+
+    # 2. 返り値を設定
+    return review
+
+
+"""
+===復習管理情報更新===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習管理情報更新.md
+"""
+def update_review_management(
+    db: Session,
+    user_id: int,
+    review_id: int,
+    review_time: int,
+    done_flag: bool,
+    today: datetime
+) -> ReviewManagement | None:
+    # 1. 復習管理情報更新
+    # 1.(1) REVIEW_MANAGEMENTテーブルを更新
+    review_management = db.query(ReviewManagement).filter(
+        ReviewManagement.user_id == user_id,
+        ReviewManagement.review_id == review_id,
+        ReviewManagement.review_time == review_time
+    ).first()
+
+    if not review_management:
+        # 2. 返り値を設定
+        return None # ユーザーが見つからない場合はNoneを返す
+    
+    # 1.(1) REVIEW_MANAGEMENTテーブルを更新（つづき）
+    review_management.done_flag = done_flag
+    review_management.updated_at = today
+
+    # コミットとリフレッシュは呼び出し元で行う
+
+    # 2. 返り値を設定
+    return review_management
+
+
+"""
+===復習管理情報一括更新===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習管理情報一括更新.md
+"""
+def update_all_review_management(
+    db: Session,
+    user_id: int,
+    review_id: int,
+    done_flag: bool,
+    today: datetime
+) -> list[ReviewManagement] | None:
+    # 1. 復習管理情報更新
+    # 1.(1) REVIEW_MANAGEMENTテーブルを更新
+    review_managements = db.query(ReviewManagement).filter(
+        ReviewManagement.user_id == user_id,
+        ReviewManagement.review_id == review_id
+    ).all()
+
+    if not review_managements:
+        # 2. 返り値を設定
+        return None # ユーザーが見つからない場合はNoneを返す
+    
+    # 1.(1) REVIEW_MANAGEMENTテーブルを更新（つづき）
+    for review_management in review_managements:
+        review_management.done_flag = done_flag
+        review_management.updated_at = today
+
+    # コミットとリフレッシュは呼び出し元で行う
+
+    # 2. 返り値を設定
+    return review_managements
 
 
 """
@@ -200,43 +301,6 @@ def create_review_management(
 """
 def get_reviews(db: Session, user_id: int) -> list[Review]:
     return db.query(Review).filter(Review.user_id == user_id).all()
-
-"""
-復習項目を更新
-"""
-# 復習項目を更新(REVIEWテーブルの更新)
-def update_review(
-    db: Session,
-    user_id: int,
-    review_id: int,
-    review: str = None,
-    description: str = None,
-) -> Review | None:
-    review = db.query(Review).filter(Review.user_id == user_id, Review.id == review_id).first()
-    if not review:
-        return None
-    if review:
-        review.review = review
-    if description:
-        review.description = description
-    # コミットとリフレッシュは呼び出し元で行う
-    return review
-
-# 復習項目を更新(REVIEW_MANAGEMENTテーブルの更新)
-def update_review_management(
-    db: Session,
-    user_id: int,
-    review_id: int,
-    review_time: int,
-    done_flag: bool = None
-) -> ReviewManagement | None:
-    review_management = db.query(ReviewManagement).filter(ReviewManagement.user_id == user_id, ReviewManagement.review_id == review_id, ReviewManagement.review_time == review_time).first()
-    if not review_management:
-        return None
-    if done_flag is not None:
-        review_management.done_flag = done_flag
-    # コミットとリフレッシュは呼び出し元で行う
-    return review_management
 
 """
 復習項目を削除
