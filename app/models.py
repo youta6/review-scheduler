@@ -18,9 +18,9 @@ class User(Base):
 
 class Review(Base):
     __tablename__ = "reviews"
-    id:Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_id:Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
-    review:Mapped[str] = mapped_column(String)
+    review_id:Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    review_item:Mapped[str] = mapped_column(String)
     description:Mapped[str] = mapped_column(String, nullable=True)
     study_date:Mapped[datetime] = mapped_column(DateTime)
     created_at:Mapped[datetime] = mapped_column(DateTime, default=func.now)
@@ -32,8 +32,10 @@ class ReviewManagement(Base):
     __tablename__ = "review_management"
     user_id:Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
     review_id:Mapped[int] = mapped_column(Integer, ForeignKey("reviews.id"), primary_key=True)
-    review_time:Mapped[int] = mapped_column(Integer)  # 復習回数
+    review_time:Mapped[int] = mapped_column(Integer)
     review_date:Mapped[datetime] = mapped_column(DateTime)
     done_flag:Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at:Mapped[datetime] = mapped_column(DateTime, default=func.now)
+    updated_at:Mapped[datetime] = mapped_column(DateTime, default=func.now, onupdate=func.now)
 
     review = relationship("Review")

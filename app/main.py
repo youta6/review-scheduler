@@ -1,5 +1,6 @@
 import os
 from dotenv import load_dotenv
+from datetime import datetime, timedelta, timezone
 from fastapi import FastAPI, Depends, HTTPException
 from typing import Annotated
 from sqlalchemy.orm import Session
@@ -17,6 +18,9 @@ from app.schemas import(
     UserDeleteResponse,
     UserGetRequest,
     UserGetResponse,
+    ReviewCreateRequest,
+    ReviewCreateResponse,
+    ReviewSchedule,
 )
 from app.crud import(
     create_user,
@@ -290,24 +294,77 @@ def get_all_user_endpoint(
             )
         ]
 
-        
-# 復習項目を作成
+
+'''
+===復習項目作成===
+設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作\復習項目作成.md
+'''
 @app.post("/users/{user_id}/reviews")
 def create_review_endpoint(
-    user_id: int,
-    review: str,
-    description: str = None,
+    review_create_request: ReviewCreateRequest,
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
-    ):
-    try:
-        new_review = create_review(db, user_id=user_id, review=review, description=description)
-        new_review_management = create_review_management(db, user_id=user_id, review_id=new_review.id)
-        db.commit()
-        db.refresh(new_review)
+    ) -> ReviewCreateResponse:
+    # 1. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 2. 学習日設定
+    # 2.(1) 入力値．学習日が未設定の場合、学習日に入力値．現在日時を設定する
+    if review_create_request.study_date is None\
+        or review_create_request.study_date == "":
+        study_date = today
+    # 2.(2) 入力値．学習日が設定済みの場合、学習日に入力値．学習日を設定する
+    else:
+        study_date = review_create_request.study_date
+
+    # 3. 復習情報作成
+    # 3.(1) メソッド呼び出し
+    new_review = create_review(
+        db,
+        user_id=auth.user_id,
+        review_item=review_create_request.review_item,
+        study_date=study_date,
+        today=today,
+        description=review_create_request.description
+    )
+
+    # 4. 復習予定日算出
+    # 4.(1) 復習回をn（1～5）とし、5回分の復習予定日を算出する
+    review_time_list = []
+    review_date_list = []
+    for review_time in range(1, 6):
+        review_time_list.append(review_time)
+        review_date_list.append(today + timedelta(days=2 ** review_time - 1))
+
+    # 5. 復習管理情報作成
+    # 5.(1) メソッド呼び出し
+    new_review_managements = create_review_management(
+        db,
+        user_id=auth.user_id,
+        review_id=new_review.review_id,
+        review_time_list=review_time_list,
+        review_date_list=review_date_list,
+        today=today
+    )
+
+    db.add(new_review)
+    db.add_all(new_review_managements)
+    db.commit()
+    db.refresh(new_review)
+    for new_review_management in new_review_managements:
         db.refresh(new_review_management)
-        return {"id": new_review.id, "review": new_review.review, "description": new_review.description}
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+
+    # 6. 返り値を設定
+    return ReviewCreateResponse(
+        review_item=new_review.review_item,
+        study_date=new_review.study_date,
+        review_schedule_list=[
+            ReviewSchedule(
+                review_time=new_review_management.review_time,
+                review_date=new_review_management.review_date
+            )for new_review_management in new_review_managements
+        ]
+    )
 
 # 復習項目を取得
 @app.get("/users/{user_id}/reviews")

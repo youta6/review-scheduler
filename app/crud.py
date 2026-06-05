@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from app.models import User, Review, ReviewManagement
@@ -127,31 +128,71 @@ def get_users(db: Session) -> list[User]:
 
 
 """
-復習項目を作成
+===復習情報作成===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習情報作成.md
 """
-# 復習項目を作成(REVIEWテーブルに追加)
-def create_review(db: Session, user_id: int, review: str, description: str = None) -> Review:
-    new_review = Review(user_id=user_id, review=review, description=description)
-    db.add(new_review)
+def create_review(
+    db: Session,
+    user_id: int,
+    review_item: str,
+    study_date: datetime,
+    today: datetime,
+    description: str = None
+) -> Review:
+    # 1. 復習ID採番
+    # 1.(1) 復習項目ID最大値取得
+    new_review_id = db.query(func.max(Review.id)).scalar() + 1 if db.query(Review).count() > 0 else 1
+
+    # 2. 復習情報登録
+    # 2.(1) REVIEWテーブルに登録
+    new_review = Review(
+        user_id=user_id,
+        review_id=new_review_id,
+        review=review_item,
+        description=description,
+        study_date=study_date,
+        created_at=today,
+        updated_at=today
+    )
+
     # コミットとリフレッシュは呼び出し元で行う
+
+    # 3. 返り値を設定
     return new_review
 
-# エビングハウスの忘却曲線を基にした復習日を計算する関数
-def _calc_next_review_date(review_time: int) -> datetime:
-    days = 2 ** review_time - 1
-    return datetime.now() + timedelta(days=days)
 
-# 復習項目を作成(REVIEW_MANAGEMENTテーブルに追加)
+
+"""
+===復習管理情報作成===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習管理情報作成.md
+"""
 def create_review_management(
-    db: Session, user_id: int,
+    db: Session,
+    user_id: int,
     review_id: int,
-) -> ReviewManagement:
-    for i in range(1, 6):
-        review_date = _calc_next_review_date(i)
-        new_review_management = ReviewManagement(user_id=user_id, review_id=review_id, review_date=review_date, review_time=i)
-        db.add(new_review_management)
+    review_time_list: list[int],
+    review_date_list: list[datetime],
+    today: datetime
+) -> list[ReviewManagement]:
+    # 1. 復習管理情報登録
+    # 1.(1) REVIEW_MANAGEMENTテーブルに登録
+    # ※メモ：sqlalchemy.coreを使うと高速化できるらしい
+    new_review_managements = [ReviewManagement(
+        user_id=user_id,
+        review_id=review_id,
+        review_time=review_time,
+        review_date=review_date_list[review_time],
+        done_flag=False,
+        created_at=today,
+        updated_at=today
+    ) for review_time in review_time_list]
+
     # コミットとリフレッシュは呼び出し元で行う
-    return new_review_management
+
+    # 2. 返り値を設定
+    return new_review_managements
+
+
 
 
 """
