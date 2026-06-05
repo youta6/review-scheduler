@@ -297,26 +297,55 @@ def update_all_review_management(
 
 
 """
+===復習情報削除===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習情報削除.md
+"""
+def delete_review(
+    db: Session,
+    user_id: int,
+    review_id: int
+) -> int | None:
+    # 1. 復習情報削除
+    # 1.(1) REVIEWテーブルを更新
+    count = db.query(Review).filter(
+        Review.user_id == user_id,
+        Review.review_id == review_id
+    ).delete()
+
+    # コミットは呼び出し元で行う
+
+    # 2. 返り値を設定
+    if count == 0:
+        return None # 復習情報が見つからない場合はNoneを返す
+    return count
+
+
+"""
+===復習管理情報削除===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習管理情報削除.md
+"""
+def delete_review_management(
+    db: Session,
+    user_id: int,
+    review_id: int
+) -> int | None:
+    # 1. 復習管理情報削除
+    # 1.(1) REVIEW_MANAGEMENTテーブルを更新
+    count = db.query(ReviewManagement).filter(
+        ReviewManagement.user_id == user_id,
+        ReviewManagement.review_id == review_id
+    ).delete()
+
+    # コミットは呼び出し元で行う
+
+    # 2. 返り値を設定
+    if count == 0:
+        return None # 復習管理情報が見つからない場合はNoneを返す
+    return count
+
+
+"""
 復習項目を取得
 """
 def get_reviews(db: Session, user_id: int) -> list[Review]:
     return db.query(Review).filter(Review.user_id == user_id).all()
-
-"""
-復習項目を削除
-"""
-# 復習項目を削除(REVIEWテーブルの削除)
-def delete_review(db: Session, user_id: int, review_id: int) -> Review | None:
-    review = db.query(Review).filter(Review.user_id == user_id, Review.id == review_id).first()
-    if not review:
-        return None
-    # 削除は呼び出し元で行う
-    return review
-
-# 復習項目を削除(REVIEW_MANAGEMENTテーブルの削除)
-def delete_review_management(db: Session, user_id: int, review_id: int) -> ReviewManagement | None:
-    review_managements = db.query(ReviewManagement).filter(ReviewManagement.user_id == user_id, ReviewManagement.review_id == review_id).all()
-    if not review_managements:
-        return None
-    # 削除は呼び出し元で行う
-    return review_managements

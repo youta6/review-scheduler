@@ -24,6 +24,8 @@ from app.schemas import(
     ReviewUpdateRequest,
     ReviewUpdateResponse,
     ReviewScheduleWithDoneFlag,
+    ReviewDeleteRequest,
+    ReviewDeleteResponse,
 )
 from app.models import ReviewManagement
 from app.crud import(
@@ -471,30 +473,50 @@ def update_review_endpoint(
     ]
 
 
+"""
+===復習項目削除===
+設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作\復習項目削除.md
+"""
+@app.delete("/users/{user_id}/reviews/{review_id}")
+def delete_review_endpoint(
+    review_delete_request: ReviewDeleteRequest,
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+) -> ReviewDeleteResponse:
+    # 1. ユーザー存在チェック
+    if auth.delete_flag:
+        raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
+
+    # 2. 復習項目を削除
+    # 2.(1) 復習情報削除メソッド呼び出し
+    deleted_review_count = delete_review(
+        db,
+        user_id=auth.user_id,
+        review_id=review_delete_request.review_id
+    )
+
+    # 2.(2) 復習管理情報削除メソッド呼び出し
+    deleted_review_management_count = delete_review_management(
+        db,
+        user_id=auth.user_id,
+        review_id=review_delete_request.review_id
+    )
+
+    # 2.(3) 例外処理
+    if deleted_review_count is None and deleted_review_management_count is None:
+        raise HTTPException(status_code=404, detail="復習項目は既に削除済みです")
+    
+    db.commit()
+
+    # 3. 返り値を設定
+    return ReviewDeleteResponse(status=True)
+
+
 # 復習項目を取得
 @app.get("/users/{user_id}/reviews")
 def read_reviews_endpoint(user_id: int, db: Session = Depends(get_db)):
     try:
         reviews = get_reviews(db, user_id=user_id)
         return [{"id": review.id, "review": review.review, "description": review.description} for review in reviews]
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-# 復習項目を削除
-@app.delete("/users/{user_id}/reviews/{review_id}")
-def delete_review_endpoint(user_id: int, review_id: int, db: Session = Depends(get_db)):
-    try:
-        deleted_review = delete_review(db, user_id=user_id, review_id=review_id)
-        deleted_review_managements = delete_review_management(db, user_id=user_id, review_id=review_id)
-        if deleted_review is None and deleted_review_managements is None:
-            raise HTTPException(status_code=404, detail="Review not found")
-        if deleted_review is not None:
-            db.delete(deleted_review)
-        if deleted_review_managements is not None:
-            for deleted_review_management in deleted_review_managements:
-                db.delete(deleted_review_management)
-        db.commit()
-        # 削除されたレビューを返す
-        return {"id": deleted_review.id, "review": deleted_review.review, "description": deleted_review.description}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
