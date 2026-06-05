@@ -46,7 +46,11 @@ class ReviewUpdateRequest(ReviewBase):
 class ReviewUpdateResponse(ReviewScheduleWithDoneFlagBase):
     pass
 
+class ReviewDeleteRequest(BaseModel):
+    review_id: int = Field(min_length=1, max_length=3)
 
+class ReviewDeleteResponse(BaseModel):
+    status: bool | None = None
 
 class UserBase(BaseModel):
     user_name: str = Field(min_length=1, max_length=50)
