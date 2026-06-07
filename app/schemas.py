@@ -52,6 +52,9 @@ class ReviewDeleteRequest(BaseModel):
 class ReviewDeleteResponse(BaseModel):
     status: bool | None = None
 
+class ReviewGetResponse(ReviewScheduleWithDoneFlagBase):
+    study_date: datetime | None = None
+
 class UserBase(BaseModel):
     user_name: str = Field(min_length=1, max_length=50)
 

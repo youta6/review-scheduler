@@ -31,8 +31,8 @@ class Review(Base):
 class ReviewManagement(Base):
     __tablename__ = "review_management"
     user_id:Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)
-    review_id:Mapped[int] = mapped_column(Integer, ForeignKey("reviews.id"), primary_key=True)
-    review_time:Mapped[int] = mapped_column(Integer)
+    review_id:Mapped[int] = mapped_column(Integer, ForeignKey("reviews.review_id"), primary_key=True)
+    review_time:Mapped[int] = mapped_column(Integer, primary_key=True)
     review_date:Mapped[datetime] = mapped_column(DateTime)
     done_flag:Mapped[bool] = mapped_column(Boolean, default=False)
     created_at:Mapped[datetime] = mapped_column(DateTime, default=func.now)
