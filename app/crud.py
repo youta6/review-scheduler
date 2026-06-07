@@ -1,9 +1,11 @@
-from sqlalchemy import func
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta, timezone
 from app.models import User, Review, ReviewManagement
 from pwdlib import PasswordHash
 from pwdlib.hashers.bcrypt import BcryptHasher
+from itertools import groupby
+from app.schemas import ReviewGetResponse, ReviewScheduleWithDoneFlag
 
 # pwd_context = PasswordHash([BcryptHasher()])
 
@@ -345,7 +347,44 @@ def delete_review_management(
 
 
 """
-復習項目を取得
+===復習項目取得===
+設計書：review-scheduler\設計書\CLUD\復習項目操作\復習項目取得.md
 """
-def get_reviews(db: Session, user_id: int) -> list[Review]:
-    return db.query(Review).filter(Review.user_id == user_id).all()
+def get_reviews(db: Session, user_id: int) -> list[ReviewGetResponse] | None:
+    # 1. 復習項目取得
+    # 1.(1) REVIEWテーブル、REVIEW_MANAGEMENTテーブルを結合して取得
+    stmt = select(Review).join(
+        ReviewManagement,
+        (Review.user_id == ReviewManagement.user_id) &
+        (Review.review_id == ReviewManagement.review_id)
+    ).where(Review.user_id == user_id)
+    results = db.execute(stmt).all()
+
+    if not results:
+        # 2. 返り値を設定
+        return None # 取得できない場合はNoneを返す
+    
+    # ソートしてからグループ化
+    sorted_results = sorted(results, key=lambda x: x[0].review_id)
+
+    # 2. 返り値を設定
+    response_list = []
+    for _, group in groupby(sorted_results, key=lambda x: x[0].review_id):
+        group_list = list(group)
+        review = group_list[0][0]
+        response_list.append(
+            ReviewGetResponse(
+                review_item=review.review_item,
+                description=review.description,
+                study_date=review.study_date,
+                review_schedule_with_done_flag_list=
+                [
+                    ReviewScheduleWithDoneFlag(
+                        review_time=row[1].review_time,
+                        review_date=row[1].review_date,
+                        done_status="済" if row[1].done_flag else "未済"
+                    ) for row in group_list
+                ]
+            )
+        )
+    return response_list

@@ -26,6 +26,7 @@ from app.schemas import(
     ReviewScheduleWithDoneFlag,
     ReviewDeleteRequest,
     ReviewDeleteResponse,
+    ReviewGetResponse
 )
 from app.models import ReviewManagement
 from app.crud import(
@@ -512,11 +513,22 @@ def delete_review_endpoint(
     return ReviewDeleteResponse(status=True)
 
 
-# 復習項目を取得
+"""
+===復習項目取得===
+設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作\復習項目取得.md
+"""
 @app.get("/users/{user_id}/reviews")
-def read_reviews_endpoint(user_id: int, db: Session = Depends(get_db)):
-    try:
-        reviews = get_reviews(db, user_id=user_id)
-        return [{"id": review.id, "review": review.review, "description": review.description} for review in reviews]
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+def get_reviews_endpoint(
+    auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
+    db: Session = Depends(get_db)
+) -> list[ReviewGetResponse]:
+    # 1. 復習項目を取得
+    # 1.(1) メソッド呼び出し
+    reviews = get_reviews(db, user_id=auth.user_id)
+
+    # 1.(2) 例外処理
+    if not reviews:
+        raise HTTPException(status_code=404, detail="復習項目が見つかりませんでした")
+    
+    # 2. 返り値を設定
+    return reviews
