@@ -6,6 +6,20 @@ from app.models import User, Review, ReviewManagement
 from itertools import groupby
 from app.schemas import ReviewGetResponse, ReviewScheduleWithDoneFlag
 
+
+"""
+==================================================
+ユーザー情報操作
+- ユーザー作成
+- ユーザー情報更新
+- ユーザー情報削除
+- ユーザー情報取得
+- 全ユーザー情報取得
+
+設計書：review-scheduler\設計書\CLUD\ユーザー操作
+==================================================
+"""
+
 """
 ===ユーザー作成===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー作成.md
@@ -137,6 +151,22 @@ def get_users(db: Session) -> list[User] | None:
     # 2. 返り値を設定
     return users
 
+
+"""
+==================================================
+復習項目操作
+- 復習情報作成
+- 復習管理情報作成
+- 復習情報更新
+- 復習管理情報更新
+- 復習管理情報一括更新
+- 復習情報削除
+- 復習管理情報削除
+- 復習項目取得
+
+設計書：review-scheduler\設計書\CLUD\復習項目操作
+==================================================
+"""
 
 """
 ===復習情報作成===

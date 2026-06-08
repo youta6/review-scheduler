@@ -64,10 +64,23 @@ def health_check(db: Session = Depends(get_db)) -> schemas.HealthCheck:
 #def read_item(item_id: int, q: str | None = None):
 #    return {"item_id": item_id, "q": q}
 
-'''
+"""
+==================================================
+ユーザー操作
+- ユーザー作成
+- ユーザー情報更新
+- ユーザー削除
+- ユーザー情報取得
+- 全ユーザー情報取得
+
+設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作
+==================================================
+"""
+
+"""
 ===ユーザー作成===
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー作成.md
-'''
+"""
 @app.post("/users")
 def create_user_endpoint(
     user_create_request: UserCreateRequest,
@@ -106,10 +119,10 @@ def create_user_endpoint(
     except Exception:
         raise HTTPException(status_code=409, detail="入力したユーザー名は既に登録されています")
 
-'''
+"""
 ===ユーザー情報更新===
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報更新.md
-'''
+"""
 @app.put("/users/{user_id}")
 def update_user_endpoint(
     user_update_request: UserUpdateRequest,
@@ -176,10 +189,10 @@ def update_user_endpoint(
         updated_at=user.updated_at
     )
 
-'''
+"""
 ===ユーザー削除===
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報削除.md
-'''
+"""
 @app.delete("/users/{user_id}")
 def delete_user_endpoint(
     user_delete_request: UserDeleteRequest,
@@ -218,10 +231,10 @@ def delete_user_endpoint(
     )
 
 
-'''
+"""
 ===ユーザー情報取得===
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報取得.md
-'''
+"""
 @app.get("/users/{user_id}")
 def read_user_endpoint(
     user_get_request: UserGetRequest,
@@ -265,10 +278,10 @@ def read_user_endpoint(
         updated_at=user.updated_at
     )
 
-'''
+"""
 ===全ユーザー情報取得===
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\全ユーザー情報取得.md
-'''
+"""
 @app.get("/users")
 def get_all_user_endpoint(
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
@@ -312,10 +325,22 @@ def get_all_user_endpoint(
         ]
 
 
-'''
+"""
+==================================================
+復習項目操作
+- 復習項目作成
+- 復習項目更新
+- 復習項目削除
+- 復習項目取得
+
+設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作
+==================================================
+"""
+
+"""
 ===復習項目作成===
 設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作\復習項目作成.md
-'''
+"""
 @app.post("/users/{user_id}/reviews")
 def create_review_endpoint(
     review_create_request: ReviewCreateRequest,
@@ -385,7 +410,7 @@ def create_review_endpoint(
 
 
 """
-===復習項目を更新===
+===復習項目更新===
 設計書：review-scheduler\設計書\サーバー処理（main）\復習項目操作\復習項目更新.md
 """
 @app.patch("/users/{user_id}/reviews/{review_id}")
