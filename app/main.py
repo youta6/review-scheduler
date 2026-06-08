@@ -6,7 +6,6 @@ from typing import Annotated
 from sqlalchemy.orm import Session
 from app import schemas
 from pwdlib import PasswordHash
-from pwdlib.hashers.bcrypt import BcryptHasher
 from app.database import get_db, create_tables
 from app.auth import get_current_active_user
 from app.schemas import(
@@ -47,7 +46,7 @@ from app.crud import(
 
 app = FastAPI()
 
-pwd_context = PasswordHash([BcryptHasher()])
+password_hash = PasswordHash.recommended()
 
 # サーバー起動時にテーブル作成
 create_tables()
@@ -88,7 +87,7 @@ def create_user_endpoint(
         user = create_user(
             db,
             username=user_create_request.user_name,
-            hashed_password=pwd_context.hash(user_create_request.password),
+            hashed_password=password_hash.hash(user_create_request.password),
             admin_flag=admin_flag
         )
 
@@ -137,11 +136,11 @@ def update_user_endpoint(
                 and user_update_request.password_before is None:
                 hashed_password_before = auth.hashed_password
             else:
-                hashed_password_before = pwd_context.hash(user_update_request.password_before)
+                hashed_password_before = password_hash.hash(user_update_request.password_before)
     else:
         if auth.admin_flag == True:
             user_name_before = user_update_request.user_name_before
-            hashed_password_before = pwd_context.hash(user_update_request.password_before)
+            hashed_password_before = password_hash.hash(user_update_request.password_before)
         else:
             # 2.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
@@ -152,7 +151,7 @@ def update_user_endpoint(
     if user_update_request.password_after is None:
         hashed_password_after = auth.hashed_password
     else:
-        hashed_password_after = pwd_context.hash(user_update_request.password_after)
+        hashed_password_after = password_hash.hash(user_update_request.password_after)
     
     # 3. ユーザー情報更新
     # 3.(1) メソッド呼び出し
@@ -196,7 +195,7 @@ def delete_user_endpoint(
     else:
         if auth.admin_flag == True:
             user_name = user_delete_request.user_name
-            hashed_password = pwd_context.hash(user_delete_request.password)
+            hashed_password = password_hash.hash(user_delete_request.password)
         else:
             # 1.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
