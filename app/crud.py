@@ -1,5 +1,6 @@
-from sqlalchemy import func, select
+from sqlalchemy import func, select, delete
 from sqlalchemy.orm import Session
+from sqlalchemy.engine import CursorResult
 from datetime import datetime, timedelta, timezone
 from app.models import User, Review, ReviewManagement
 from pwdlib import PasswordHash
@@ -31,15 +32,11 @@ def create_user(
         created_at=today,
         updated_at=today
         )
-    db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    
+    # コミットとリフレッシュは呼び出し元で行う
 
     # 3. 返り値を設定
-    return User(
-        username=username,
-        created_at=today
-    )
+    return new_user
 
 
 """
@@ -52,81 +49,97 @@ def update_user(
     hashed_password_before: str,
     user_name_after: str = None,
     hashed_password_after: str = None,
-) -> User:
+) -> User | None:
     # 1. 現在日時取得
     today = datetime.now(timezone.utc)
 
     # 2. ユーザー情報更新
     # 2. (1) USERテーブルを更新
-    user = db.query(User).filter(
-        User.user_name == user_name_before,
-        User.hashed_password == hashed_password_before
-    ).first()
+    # 更新対象を取得
+    user = db.scalar(
+        select(User).where(
+            User.user_name == user_name_before,
+            User.hashed_password == hashed_password_before
+        )
+    )
     if not user:
         # 3. 返り値を設定
         return None  # ユーザーが見つからない場合はNoneを返す
+    # 取得したデータを更新
     if user_name_after:
         user.user_name = user_name_after
     if hashed_password_after:
         user.hashed_password = hashed_password_after
     user.updated_at = today
-    db.commit()
-    db.refresh(user)
+
+    # コミットとリフレッシュは呼び出し元で行う
 
     # 3. 返り値を設定
-    return User(
-        user_name=user.user_name,
-        updated_at=today
-    )
+    return user
 
 
 """
 ===ユーザー情報削除===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報削除.md
 """
-def delete_user(db: Session, user_name: str, hashed_password: str) -> User:
+def delete_user(db: Session, user_name: str, hashed_password: str) -> User | None:
     # 1. 現在日時取得
     today = datetime.now(timezone.utc)
 
     # 2. ユーザー情報削除
     # 2.(1) USERテーブルを更新
-    user = db.query(User).filter(
-        User.user_name == user_name,
-        User.hashed_password == hashed_password
-    ).first()
+    # 更新対象を取得
+    user = db.scalar(
+        select(User).where(
+            User.user_name == user_name,
+            User.hashed_password == hashed_password
+        )
+    )
     if not user:
         return None  # ユーザーが見つからない場合はNoneを返す
+    # 取得したデータを更新
     user.delete_flag = True
     user.updated_at = today
-    db.commit()
-    db.refresh(user)
 
+    # コミットとリフレッシュは呼び出し元で行う
+    
     # 3. 返り値を設定
-    return User(
-        user_name=user.user_name,
-        updated_at=today
-    )
+    return user
 
 
 """
 ===ユーザー情報取得===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報取得.md
 """
-def get_user(db: Session, user_name: str) -> User:
-    return db.query(User).filter(
-        User.user_name == user_name,
-        User.delete_flag == False
-    ).first()
+def get_user(db: Session, user_name: str) -> User | None:
+    # 1. ユーザー情報取得
+    user = db.scalar(
+        select(User).where(
+            User.user_name == user_name,
+            User.delete_flag == False
+        )
+    )
+
+    if not user:
+        return None  # ユーザーが見つからない場合はNoneを返す
+    
+    # 2. 返り値を設定
+    return user
 
 
 """
 ===全ユーザー情報取得===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\全ユーザー情報取得.md
 """
-def get_users(db: Session) -> list[User]:
+def get_users(db: Session) -> list[User] | None:
     # 1. 全ユーザー情報取得
+    users = db.scalars(select(User)).all()
+
+    if not users:
+        return [] # ユーザーが見つからない場合は空のリストを返す
+    
     # 2. 返り値を設定
-    return db.query(User).all()
+    return users
 
 
 """
@@ -143,10 +156,15 @@ def create_review(
 ) -> Review:
     # 1. 復習ID採番
     # 1.(1) 復習項目ID最大値取得
-    new_review_id = db.query(func.max(Review.id)).scalar() + 1 if db.query(Review).count() > 0 else 1
-
+    max_id = db.scalar(
+        select(func.max(Review.review_id)).where(
+            Review.user_id == user_id
+        )
+    )
+    
     # 2. 復習情報登録
     # 2.(1) REVIEWテーブルに登録
+    new_review_id = (max_id or 0) + 1
     new_review = Review(
         user_id=user_id,
         review_id=new_review_id,
@@ -161,7 +179,6 @@ def create_review(
 
     # 3. 返り値を設定
     return new_review
-
 
 
 """
@@ -209,14 +226,16 @@ def update_review(
 ) -> Review | None:
     # 1. 復習情報更新
     # 1.(1) REVIEWテーブルを更新
-    review = db.query(Review).filter(
-        Review.user_id == user_id,
-        Review.review_id == review_id
-    ).first()
+    review = db.scalar(
+        select(Review).where(
+            Review.user_id == user_id,
+            Review.review_id == review_id
+        )
+    )
 
     if not review:
         # 2. 返り値を設定
-        return None # ユーザーが見つからない場合はNoneを返す
+        return None # 復習情報が見つからない場合はNoneを返す
     
     # 1.(1) REVIEWテーブルを更新（つづき）
     if review:
@@ -242,18 +261,20 @@ def update_review_management(
     review_time: int,
     done_flag: bool,
     today: datetime
-) -> ReviewManagement | None:
+) -> list[ReviewManagement]:
     # 1. 復習管理情報更新
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新
-    review_management = db.query(ReviewManagement).filter(
-        ReviewManagement.user_id == user_id,
-        ReviewManagement.review_id == review_id,
-        ReviewManagement.review_time == review_time
-    ).first()
+    review_management = db.scalar(
+        select(ReviewManagement).where(
+            ReviewManagement.user_id == user_id,
+            ReviewManagement.review_id == review_id,
+            ReviewManagement.review_time == review_time
+        )
+    )
 
     if not review_management:
         # 2. 返り値を設定
-        return None # ユーザーが見つからない場合はNoneを返す
+        return [] # 復習管理情報が見つからない場合は空のリストを返す
     
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新（つづき）
     review_management.done_flag = done_flag
@@ -262,7 +283,7 @@ def update_review_management(
     # コミットとリフレッシュは呼び出し元で行う
 
     # 2. 返り値を設定
-    return review_management
+    return [review_management]
 
 
 """
@@ -275,17 +296,19 @@ def update_all_review_management(
     review_id: int,
     done_flag: bool,
     today: datetime
-) -> list[ReviewManagement] | None:
+) -> list[ReviewManagement]:
     # 1. 復習管理情報更新
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新
-    review_managements = db.query(ReviewManagement).filter(
-        ReviewManagement.user_id == user_id,
-        ReviewManagement.review_id == review_id
+    review_managements = db.scalars(
+        select(ReviewManagement).where(
+            ReviewManagement.user_id == user_id,
+            ReviewManagement.review_id == review_id
+        )
     ).all()
 
     if not review_managements:
         # 2. 返り値を設定
-        return None # ユーザーが見つからない場合はNoneを返す
+        return [] # 復習管理情報が見つからない場合は空のリストを返す
     
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新（つづき）
     for review_management in review_managements:
@@ -309,10 +332,14 @@ def delete_review(
 ) -> int | None:
     # 1. 復習情報削除
     # 1.(1) REVIEWテーブルを更新
-    count = db.query(Review).filter(
-        Review.user_id == user_id,
-        Review.review_id == review_id
-    ).delete()
+    result: CursorResult = db.execute(
+        delete(Review).where(
+            Review.user_id == user_id,
+            Review.review_id == review_id
+        )
+    )
+    db.flush()
+    count = result.rowcount
 
     # コミットは呼び出し元で行う
 
@@ -333,10 +360,14 @@ def delete_review_management(
 ) -> int | None:
     # 1. 復習管理情報削除
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新
-    count = db.query(ReviewManagement).filter(
-        ReviewManagement.user_id == user_id,
-        ReviewManagement.review_id == review_id
-    ).delete()
+    result: CursorResult = db.execute(
+        delete(ReviewManagement).where(
+            ReviewManagement.user_id == user_id,
+            ReviewManagement.review_id == review_id
+        )
+    )
+    db.flush()
+    count = result.rowcount
 
     # コミットは呼び出し元で行う
 
@@ -353,12 +384,15 @@ def delete_review_management(
 def get_reviews(db: Session, user_id: int) -> list[ReviewGetResponse] | None:
     # 1. 復習項目取得
     # 1.(1) REVIEWテーブル、REVIEW_MANAGEMENTテーブルを結合して取得
-    stmt = select(Review).join(
-        ReviewManagement,
-        (Review.user_id == ReviewManagement.user_id) &
-        (Review.review_id == ReviewManagement.review_id)
-    ).where(Review.user_id == user_id)
-    results = db.execute(stmt).all()
+    results = db.execute(
+        select(Review).join(
+            ReviewManagement,
+            (Review.user_id == ReviewManagement.user_id) &
+            (Review.review_id == ReviewManagement.review_id)
+        ).where(
+            Review.user_id == user_id
+        )
+    ).all()
 
     if not results:
         # 2. 返り値を設定

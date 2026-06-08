@@ -34,4 +34,14 @@
         <td style="border: 1px solid white;">-</a></td>
         <td style="border: 1px solid white;">-</td>
     </tr>
+    <tr>
+        <td style="border: 1px solid white;"><a href=".\execute_vs_scalars_test.py">execute_vs_scalars_test.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;"><a href="..\app\crud.py">crud.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">get_user</td>
+        <td style="border: 1px solid white;"><a href="..\設計書\CLUD\復習項目操作\ユーザー情報取得.md">ユーザー情報取得</a></td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
 </table>

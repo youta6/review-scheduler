@@ -92,6 +92,10 @@ def create_user_endpoint(
             admin_flag=admin_flag
         )
 
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
         # 3. 返り値を設定
         return UserCreateResponse(
             user_name=user.user_name,
@@ -164,6 +168,9 @@ def update_user_endpoint(
     if user is None:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
     
+    db.commit()
+    db.refresh(user)
+    
     # 4. 返り値を設定
     return UserUpdateResponse(
         user_name=user.user_name,
@@ -202,6 +209,9 @@ def delete_user_endpoint(
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
     
+    db.commit()
+    db.refresh(user)
+
     # 3. 返り値を設定
     return UserDeleteResponse(
         user_name=user.user_name,
@@ -272,7 +282,7 @@ def get_all_user_endpoint(
         users = get_users(db)
 
         # 1.(1)② 例外処理
-        if not users:
+        if users == []:
             raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
         
         # 2. 返り値を設定
@@ -447,7 +457,7 @@ def update_review_endpoint(
         update_all_review_management_flag = True
     
     # 5.(3) 例外処理
-    if updated_review_management_list is None:
+    if updated_review_management_list == []:
         raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
 
     db.commit()
