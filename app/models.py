@@ -4,6 +4,17 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 from app.database import Base
 
+"""
+==================================================
+テーブル定義
+設計書：review-scheduler\設計書\テーブル定義（models）.md
+==================================================
+"""
+
+"""
+テーブル論理名：ユーザー情報
+テーブル物理名：USER
+"""
 class User(Base):
     __tablename__ = "users"
     id:Mapped[int] = mapped_column(Integer(2), primary_key=True, index=True)
@@ -16,6 +27,10 @@ class User(Base):
 
     reviews = relationship("Review", back_populates="owner")
 
+"""
+テーブル論理名：復習情報
+テーブル物理名：REVIEW
+"""
 class Review(Base):
     __tablename__ = "reviews"
     user_id:Mapped[int] = mapped_column(Integer, ForeignKey("users.id"))
@@ -28,6 +43,10 @@ class Review(Base):
 
     owner = relationship("User", back_populates="reviews")
 
+"""
+テーブル論理名：復習管理情報
+テーブル物理名：REVIEW_MANAGEMENT
+"""
 class ReviewManagement(Base):
     __tablename__ = "review_management"
     user_id:Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), primary_key=True)

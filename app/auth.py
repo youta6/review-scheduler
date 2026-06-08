@@ -38,10 +38,21 @@ def get_user_for_auth(db: Session, user_name: str) -> UserValidationResponse | N
     user = db.query(UserValidationResponse).filter(UserValidationResponse.user_name == user_name).first()
     return user
 
-'''
+
+"""
+==================================================
+認証・認可
+- 有効ユーザー検証
+- トークン発行
+
+設計書：review-scheduler\設計書\認証・認可（auth）
+==================================================
+"""
+
+"""
 ===有効ユーザー検証===
 設計書：review-scheduler\設計書\認証・認可（auth）\有効ユーザー検証.md
-'''
+"""
 async def get_current_active_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db),
@@ -78,10 +89,10 @@ async def get_current_active_user(
         raise HTTPException(status_code=400, detail="削除済みのユーザーです")
     return user
 
-'''
+"""
 ===トークン発行===
 設計書：review-scheduler\設計書\認証・認可（auth）\トークン発行.md
-'''
+"""
 @app.post("/token")
 async def generate_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
