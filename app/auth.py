@@ -1,5 +1,7 @@
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
+from dotenv import load_dotenv
 
 import jwt
 from fastapi import Depends, FastAPI, HTTPException, status
@@ -10,15 +12,15 @@ from sqlalchemy.orm import Session
 from app.schemas import TokenResponse, UserValidationResponse
 from app.database import get_db
 
-# to get a string like this run:
-# openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+load_dotenv()
+
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
 
 password_hash = PasswordHash.recommended()
 
-DUMMY_HASH = password_hash.hash("dummypassword")
+DUMMY_HASH = os.getenv("DUMMY_HASH")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
