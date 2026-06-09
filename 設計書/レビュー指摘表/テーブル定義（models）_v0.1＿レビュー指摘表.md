@@ -1,14 +1,14 @@
 <table style="border-collapse: collapse;">
     <tr>
-        <th colspan="2" style="border: 3px solid white; background-color: gray;">設計書名：</th>
-        <th colspan="3" style="border: 3px solid white;">CLUD/ユーザー操作/全ユーザー情報取得</th>
+        <th colspan="3" style="border: 3px solid white; background-color: gray;">設計書名：</th>
+        <th colspan="3" style="border: 3px solid white;">テーブル定義（models）</th>
         <th colspan="2" style="border: 3px solid white; background-color: gray;">作成日：</th>
         <th colspan="2" style="border: 3px solid white;">2026/6/9</th>
         <th colspan="2" style="border: 3px solid white; background-color: gray;">最終更新日：</th>
         <th colspan="2" style="border: 3px solid white;">2026/6/9</th>
     </tr>
     <tr>
-        <th colspan="5" style="border: 3px solid white; background-color: gray;">指摘者</th>
+        <th colspan="6" style="border: 3px solid white; background-color: gray;">指摘者</th>
         <th colspan="6" style="border: 3px solid white; background-color: gray;">作成担当者</th>
         <th colspan="2" style="border: 3px solid white; background-color: gray;">再鑑者</th>
     </tr>
@@ -16,36 +16,25 @@
         <th style="border: 3px solid white; background-color: gray;">項番</th>
         <th style="border: 3px solid white; background-color: gray;">指摘区分</th>
         <th style="border: 3px solid white; background-color: gray;">指摘内容</th>
+        <th style="border: 3px solid white; background-color: gray;">該当行</th>
+        <th style="border: 3px solid white; background-color: gray;">該当行</th>
         <th style="border: 3px solid white; background-color: gray;">指摘者</th>
         <th style="border: 3px solid white; background-color: gray;">指摘日</th>
         <th style="border: 3px solid white; background-color: gray;">原因区分</th>
         <th style="border: 3px solid white; background-color: gray;">回答</th>
         <th style="border: 3px solid white; background-color: gray;">対応方針</th>
+        <th style="border: 3px solid white; background-color: gray;">担当者</th>
         <th style="border: 3px solid white; background-color: gray;">対応開始日</th>
         <th style="border: 3px solid white; background-color: gray;">対応完了日</th>
-        <th style="border: 3px solid white; background-color: gray;">担当者</th>
-        <th style="border: 3px solid white; background-color: gray;">再鑑者</th>
+        <th style="border: 3px solid white; background-color: gray;">指摘者</th>
         <th style="border: 3px solid white; background-color: gray;">確認日</th>
     </tr>
     <tr>
         <td style="border: 1px solid white;">1</td>
-        <td style="border: 1px solid white;">誤記</td>
-        <td style="border: 1px solid white;">メソッド概要のメソッド名の論理名が「ユーザー情報取得」と記載されているが、正しくは「全ユーザー情報取得」とすべきである。</td>
-        <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
-        <td style="border: 1px solid white;">2026/6/9</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid white;">2</td>
         <td style="border: 1px solid white;">質問</td>
-        <td style="border: 1px solid white;">引数テーブルのヘッダーが他のcrud設計書と異なり `colspan="2"` の列が論理名に付与されている。他の設計書と列構成を統一すべきか確認が必要である。</td>
+        <td style="border: 1px solid white;">USERテーブルの「ユーザーID（id）」の最大桁が「2」と定義されているが、オートインクリメントの整数型主キーとしては上限が99件（2桁）となり、実用上著しく少ない。REVIEWおよびREVIEW_MANAGEMENTテーブルでも最大桁「2」となっている。意図した設計であるか確認が必要である。システム要件上の最大ユーザー数が明確でない場合は、より大きな桁数（例：9桁 = 999,999,999件）を設定すべきである。</td>
+        <td style="border: 1px solid white;">27, 135, 243</td>
+        <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
         <td style="border: 1px solid white;">2026/6/9</td>
         <td style="border: 1px solid white;"></td>
