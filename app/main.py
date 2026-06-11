@@ -216,18 +216,26 @@ def delete_user_endpoint(
             # 1.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
 
-    # 2. ユーザー情報削除
-    # 2.(1) メソッド呼び出し
-    user = delete_user(db, user_name=user_name, hashed_password=hashed_password)
+    # 2. 現在日時取得
+    today = datetime.now(timezone.utc)
 
-    # 2.(2) 例外処理
+    # 3. ユーザー情報削除
+    # 3.(1) メソッド呼び出し
+    user = delete_user(
+        db,
+        user_name=user_name,
+        hashed_password=hashed_password,
+        today=today
+    )
+
+    # 3.(2) 例外処理
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
     
     db.commit()
     db.refresh(user)
 
-    # 3. 返り値を設定
+    # 4. 返り値を設定
     return UserDeleteResponse(
         user_name=user.user_name,
         updated_at=user.updated_at

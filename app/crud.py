@@ -90,12 +90,9 @@ def update_user(
 ===ユーザー情報削除===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報削除.md
 """
-def delete_user(db: Session, user_name: str, hashed_password: str) -> User | None:
-    # 1. 現在日時取得
-    today = datetime.now(timezone.utc)
-
-    # 2. ユーザー情報削除
-    # 2.(1) USERテーブルを更新
+def delete_user(db: Session, user_name: str, hashed_password: str, today: datetime) -> User | None:
+    # 1. ユーザー情報削除
+    # 1.(1) USERテーブルを更新
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
@@ -111,7 +108,7 @@ def delete_user(db: Session, user_name: str, hashed_password: str) -> User | Non
 
     # コミットとリフレッシュは呼び出し元で行う
     
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return user
 
 
