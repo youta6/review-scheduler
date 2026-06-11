@@ -5,7 +5,7 @@
         <th colspan="2" style="border: 3px solid white; background-color: gray;">作成日：</th>
         <th colspan="2" style="border: 3px solid white;">2026/6/9</th>
         <th colspan="2" style="border: 3px solid white; background-color: gray;">最終更新日：</th>
-        <th colspan="2" style="border: 3px solid white;">2026/6/9</th>
+        <th colspan="2" style="border: 3px solid white;">2026/6/11</th>
     </tr>
     <tr>
         <th colspan="6" style="border: 3px solid white; background-color: gray;">指摘者</th>
@@ -16,7 +16,6 @@
         <th style="border: 3px solid white; background-color: gray;">項番</th>
         <th style="border: 3px solid white; background-color: gray;">指摘区分</th>
         <th style="border: 3px solid white; background-color: gray;">指摘内容</th>
-        <th style="border: 3px solid white; background-color: gray;">該当行</th>
         <th style="border: 3px solid white; background-color: gray;">該当行</th>
         <th style="border: 3px solid white; background-color: gray;">指摘者</th>
         <th style="border: 3px solid white; background-color: gray;">指摘日</th>
@@ -34,15 +33,14 @@
         <td style="border: 1px solid white;">質問</td>
         <td style="border: 1px solid white;">USERテーブルの「ユーザーID（id）」の最大桁が「2」と定義されているが、オートインクリメントの整数型主キーとしては上限が99件（2桁）となり、実用上著しく少ない。REVIEWおよびREVIEW_MANAGEMENTテーブルでも最大桁「2」となっている。意図した設計であるか確認が必要である。システム要件上の最大ユーザー数が明確でない場合は、より大きな桁数（例：9桁 = 999,999,999件）を設定すべきである。</td>
         <td style="border: 1px solid white;">27, 135, 243</td>
-        <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
         <td style="border: 1px solid white;">2026/6/9</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
+        <td style="border: 1px solid white;">改善</td>
+        <td style="border: 1px solid white;">意図した設計。ただし、自動採番なので、テーブル定義の最小・最大桁の記載は削除し、上限チェックをユーザー作成処理概要に追記する形に変更する。</td>
+        <td style="border: 1px solid white;">「テーブル定義.md」のuser_idの最小桁、最大桁を"-"（ハイフン）に修正<br>「サーバー処理（main）/ユーザー操作/ユーザー作成.md」に「登録ユーザー数上限チェック」の処理を追加</td>
+        <td style="border: 1px solid white;">youta6</td>
+        <td style="border: 1px solid white;">2026/6/11</td>
+        <td style="border: 1px solid white;">2026/6/11</td>
         <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;"></td>
     </tr>
@@ -105,6 +103,10 @@
     <tr>
         <td style="border: 1px solid white;">技術力不足</td>
         <td style="border: 1px solid white;">技術的な知識不足により発生したもの</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">改善</td>
+        <td style="border: 1px solid white;">誤りではないが、より良い設計・実装のための修正</td>
     </tr>
     <tr>
         <td style="border: 1px solid white;">-</td>
