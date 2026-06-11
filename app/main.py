@@ -207,11 +207,9 @@ def delete_user_endpoint(
     if user_delete_request.user_name is None\
         or user_delete_request.user_name == auth.user_name:
         user_name = auth.user_name
-        hashed_password = auth.hashed_password
     else:
         if auth.admin_flag == True:
             user_name = user_delete_request.user_name
-            hashed_password = password_hash.hash(user_delete_request.password)
         else:
             # 1.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
@@ -224,7 +222,6 @@ def delete_user_endpoint(
     user = delete_user(
         db,
         user_name=user_name,
-        hashed_password=hashed_password,
         today=today
     )
 
