@@ -95,27 +95,30 @@ def create_user_endpoint(
         admin_flag = True
 
     try:
-        # 2. ユーザー登録
-        # 2.(1) メソッド呼び出し
+        # 3. 現在日時取得
+        today = datetime.now(timezone.utc)
+        # 4. ユーザー登録
+        # 4.(1) メソッド呼び出し
         user = create_user(
             db,
             username=user_create_request.user_name,
             hashed_password=password_hash.hash(user_create_request.password),
-            admin_flag=admin_flag
+            admin_flag=admin_flag,
+            today=today
         )
 
         db.add(user)
         db.commit()
         db.refresh(user)
 
-        # 3. 返り値を設定
+        # 5. 返り値を設定
         return UserCreateResponse(
             user_name=user.user_name,
             user_kind="管理者" if admin_flag else "一般",
             created_at=user.created_at
         )
     
-    # 2.(2) 例外処理
+    # 4.(2) 例外処理
     except Exception:
         raise HTTPException(status_code=409, detail="入力したユーザー名は既に登録されています")
 
@@ -204,27 +207,32 @@ def delete_user_endpoint(
     if user_delete_request.user_name is None\
         or user_delete_request.user_name == auth.user_name:
         user_name = auth.user_name
-        hashed_password = auth.hashed_password
     else:
         if auth.admin_flag == True:
             user_name = user_delete_request.user_name
-            hashed_password = password_hash.hash(user_delete_request.password)
         else:
             # 1.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
 
-    # 2. ユーザー情報削除
-    # 2.(1) メソッド呼び出し
-    user = delete_user(db, user_name=user_name, hashed_password=hashed_password)
+    # 2. 現在日時取得
+    today = datetime.now(timezone.utc)
 
-    # 2.(2) 例外処理
+    # 3. ユーザー情報削除
+    # 3.(1) メソッド呼び出し
+    user = delete_user(
+        db,
+        user_name=user_name,
+        today=today
+    )
+
+    # 3.(2) 例外処理
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
     
     db.commit()
     db.refresh(user)
 
-    # 3. 返り値を設定
+    # 4. 返り値を設定
     return UserDeleteResponse(
         user_name=user.user_name,
         updated_at=user.updated_at

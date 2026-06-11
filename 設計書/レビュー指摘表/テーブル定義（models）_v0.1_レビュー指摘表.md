@@ -1,11 +1,11 @@
 <table style="border-collapse: collapse;">
     <tr>
-        <th colspan="3" style="border: 3px solid white; background-color: gray;">設計書名：</th>
-        <th colspan="3" style="border: 3px solid white;">CLUD/復習項目操作/復習情報更新</th>
+        <th colspan="2" style="border: 3px solid white; background-color: gray;">設計書名：</th>
+        <th colspan="4" style="border: 3px solid white;">テーブル定義（models）</th>
         <th colspan="2" style="border: 3px solid white; background-color: gray;">作成日：</th>
         <th colspan="2" style="border: 3px solid white;">2026/6/9</th>
         <th colspan="2" style="border: 3px solid white; background-color: gray;">最終更新日：</th>
-        <th colspan="2" style="border: 3px solid white;">2026/6/9</th>
+        <th colspan="2" style="border: 3px solid white;">2026/6/11</th>
     </tr>
     <tr>
         <th colspan="6" style="border: 3px solid white; background-color: gray;">指摘者</th>
@@ -30,49 +30,17 @@
     </tr>
     <tr>
         <td style="border: 1px solid white;">1</td>
-        <td style="border: 1px solid white;">仕様誤り</td>
-        <td style="border: 1px solid white;">返り値の型が `Review` となっているが、備考に「復習情報が見つからない場合はNoneを返す」と記載されている。Noneを返す可能性がある場合、型は `Review | None` と定義すべきである。</td>
-        <td style="border: 1px solid white;">160</td>
+        <td style="border: 1px solid white;">質問</td>
+        <td style="border: 1px solid white;">USERテーブルの「ユーザーID（id）」の最大桁が「2」と定義されているが、オートインクリメントの整数型主キーとしては上限が99件（2桁）となり、実用上著しく少ない。REVIEWおよびREVIEW_MANAGEMENTテーブルでも最大桁「2」となっている。意図した設計であるか確認が必要である。システム要件上の最大ユーザー数が明確でない場合は、より大きな桁数（例：9桁 = 999,999,999件）を設定すべきである。</td>
+        <td style="border: 1px solid white;">27, 135, 243</td>
         <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
         <td style="border: 1px solid white;">2026/6/9</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid white;">2</td>
-        <td style="border: 1px solid white;">誤記</td>
-        <td style="border: 1px solid white;">処理概要の検索条件に「復習ID」と記載されているが、引数名および他の設計書では「復習項目ID（review_id）」と統一されている。表記を「復習項目ID」に統一すべきである。</td>
-        <td style="border: 1px solid white;">137</td>
-        <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
-        <td style="border: 1px solid white;">2026/6/9</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-    </tr>
-    <tr>
-        <td style="border: 1px solid white;">3</td>
-        <td style="border: 1px solid white;">誤記</td>
-        <td style="border: 1px solid white;">引数「復習項目」の最小桁が未記載（空欄）になっているが、テーブル定義書では最小桁「1」と定義されている。復習情報作成の同項目では最小桁「1」が設定されており、統一が必要である。</td>
-        <td style="border: 1px solid white;">77</td>
-        <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
-        <td style="border: 1px solid white;">2026/6/9</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
+        <td style="border: 1px solid white;">改善</td>
+        <td style="border: 1px solid white;">意図した設計。ただし、自動採番なので、テーブル定義の最小・最大桁の記載は削除し、上限チェックをユーザー作成処理概要に追記する形に変更する。</td>
+        <td style="border: 1px solid white;">「テーブル定義.md」のuser_idの最小桁、最大桁を"-"（ハイフン）に修正<br>「サーバー処理（main）/ユーザー操作/ユーザー作成.md」に「登録ユーザー数上限チェック」の処理を追加</td>
+        <td style="border: 1px solid white;">youta6</td>
+        <td style="border: 1px solid white;">2026/6/11</td>
+        <td style="border: 1px solid white;">2026/6/11</td>
         <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;"></td>
     </tr>
@@ -135,6 +103,14 @@
     <tr>
         <td style="border: 1px solid white;">技術力不足</td>
         <td style="border: 1px solid white;">技術的な知識不足により発生したもの</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">変更漏れ</td>
+        <td style="border: 1px solid white;">仕様変更・設計変更に伴う関連箇所への修正反映漏れ</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">改善</td>
+        <td style="border: 1px solid white;">誤りではないが、より良い設計・実装のための修正</td>
     </tr>
     <tr>
         <td style="border: 1px solid white;">-</td>

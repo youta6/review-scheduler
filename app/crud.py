@@ -28,12 +28,10 @@ def create_user(
     db: Session,
     username: str,
     hashed_password: str,
-    admin_flag: bool = False
+    admin_flag: bool,
+    today: datetime
 ) -> User:
-    # 1. 現在日時取得
-    today = datetime.now(timezone.utc)
-
-    # 2. ユーザー情報登録
+    # 1. ユーザー情報登録
     # 2.(1) USERテーブルに登録
     new_user = User(
         username=username,
@@ -45,7 +43,7 @@ def create_user(
     
     # コミットとリフレッシュは呼び出し元で行う
 
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return new_user
 
 
@@ -92,17 +90,13 @@ def update_user(
 ===ユーザー情報削除===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報削除.md
 """
-def delete_user(db: Session, user_name: str, hashed_password: str) -> User | None:
-    # 1. 現在日時取得
-    today = datetime.now(timezone.utc)
-
-    # 2. ユーザー情報削除
-    # 2.(1) USERテーブルを更新
+def delete_user(db: Session, user_name: str, today: datetime) -> User | None:
+    # 1. ユーザー情報削除
+    # 1.(1) USERテーブルを更新
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
-            User.user_name == user_name,
-            User.hashed_password == hashed_password
+            User.user_name == user_name
         )
     )
     if not user:
@@ -113,7 +107,7 @@ def delete_user(db: Session, user_name: str, hashed_password: str) -> User | Non
 
     # コミットとリフレッシュは呼び出し元で行う
     
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return user
 
 
@@ -290,7 +284,7 @@ def update_review_management(
 ) -> list[ReviewManagement]:
     # 1. 復習管理情報更新
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新
-    review_management = db.scalar(
+    review_management_list = db.scalar(
         select(ReviewManagement).where(
             ReviewManagement.user_id == user_id,
             ReviewManagement.review_id == review_id,
@@ -298,18 +292,18 @@ def update_review_management(
         )
     )
 
-    if not review_management:
+    if not review_management_list:
         # 2. 返り値を設定
         return [] # 復習管理情報が見つからない場合は空のリストを返す
     
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新（つづき）
-    review_management.done_flag = done_flag
-    review_management.updated_at = today
+    review_management_list.done_flag = done_flag
+    review_management_list.updated_at = today
 
     # コミットとリフレッシュは呼び出し元で行う
 
     # 2. 返り値を設定
-    return [review_management]
+    return [review_management_list]
 
 
 """

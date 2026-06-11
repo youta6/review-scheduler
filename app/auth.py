@@ -11,6 +11,7 @@ from pwdlib import PasswordHash
 from sqlalchemy.orm import Session
 from app.schemas import TokenResponse, UserValidationResponse
 from app.database import get_db
+from app.crud import get_user
 
 load_dotenv()
 
@@ -32,11 +33,6 @@ def verify_password(plain_password, hashed_password):
 
 def get_password_hash(password):
     return password_hash.hash(password)
-
-# ユーザー情報をDBから取得する関数
-def get_user_for_auth(db: Session, user_name: str) -> UserValidationResponse | None:
-    user = db.query(UserValidationResponse).filter(UserValidationResponse.user_name == user_name).first()
-    return user
 
 
 """
@@ -72,13 +68,12 @@ async def get_current_active_user(
         # 1.(2)② 例外処理
         if user_name is None:
             raise credentials_exception
-        token_data = UserValidationResponse(user_name=user_name)
     except InvalidTokenError:
         raise credentials_exception
     
     # 2. 登録ユーザー取得
     # 2.(1) ユーザー情報をDBから取得する
-    user = get_user_for_auth(db, user_name=token_data.user_name)
+    user = get_user(db, user_name=user_name)
     # 2.(2) 例外処理
     if user is None:
         raise credentials_exception
@@ -87,7 +82,14 @@ async def get_current_active_user(
     if user.delete_flag:
         # 3.(1) 例外処理
         raise HTTPException(status_code=400, detail="削除済みのユーザーです")
-    return user
+    return UserValidationResponse(
+        user_id=user.id,
+        user_name=user.user_name,
+        hashed_password=user.hashed_password,
+        delete_flag=user.delete_flag,
+        admin_flag=user.admin_flag,
+        updated_at=user.updated_at
+    )
 
 """
 ===トークン発行===
@@ -101,7 +103,7 @@ async def generate_token(
     # 1. ユーザー認証
     # 1.(1) 登録されているユーザーかどうかを確認する
     # 1.(1)① ユーザー情報をDBから取得する
-    user = get_user_for_auth(db, form_data.username)
+    user = get_user(db, form_data.username)
 
     # 1.(1)② 入力値．ユーザー名とUSER．ユーザー名を比較し、
     # ユーザーが登録されていない場合、ダミーのハッシュ済みパスワードで認証する。

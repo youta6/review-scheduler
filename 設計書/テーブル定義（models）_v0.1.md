@@ -23,12 +23,12 @@
         <td style="border: 1px solid white;">id</td>
         <td style="border: 1px solid white;">INTEGER</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">1</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">2</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
         <td style="border: 1px solid white;">-</td>
-        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">自動採番</td>
     </tr>
     <tr>
         <td style="border: 1px solid white;">ユーザー名</td>
@@ -131,8 +131,8 @@
         <td style="border: 1px solid white;">user_id</td>
         <td style="border: 1px solid white;">INTEGER</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">1</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">2</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">USER.id</td>
@@ -239,8 +239,8 @@
         <td style="border: 1px solid white;">user_id</td>
         <td style="border: 1px solid white;">INTEGER</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">1</td>
-        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">2</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
+        <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">○</td>
         <td style="text-align: center; vertical-align: middle; border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">USER.id</td>
