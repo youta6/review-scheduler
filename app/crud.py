@@ -28,12 +28,10 @@ def create_user(
     db: Session,
     username: str,
     hashed_password: str,
-    admin_flag: bool = False
+    admin_flag: bool,
+    today: datetime
 ) -> User:
-    # 1. 現在日時取得
-    today = datetime.now(timezone.utc)
-
-    # 2. ユーザー情報登録
+    # 1. ユーザー情報登録
     # 2.(1) USERテーブルに登録
     new_user = User(
         username=username,
@@ -45,7 +43,7 @@ def create_user(
     
     # コミットとリフレッシュは呼び出し元で行う
 
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return new_user
 
 
