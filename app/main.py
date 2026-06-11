@@ -95,6 +95,12 @@ def create_user_endpoint(
         admin_flag = True
 
     try:
+        # 2. 登録ユーザー数上限チェック
+        # 2.(1) メソッド呼び出し
+        all_users = get_users(db)
+        if len(all_users) > 99:
+            raise HTTPException(status_code=409, detail="登録可能ユーザーが上限に達しました。")
+
         # 3. 現在日時取得
         today = datetime.now(timezone.utc)
         # 4. ユーザー登録
