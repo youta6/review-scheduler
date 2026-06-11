@@ -1,34 +1,15 @@
-- 指摘区分、原因区分は下の凡例の中から選択すること
-- 指摘が無ければ項番1の行は、指摘内容以降全て"-"（ハイフン）を入力すること
-- 再鑑で指摘がある場合、新たに行を追加して指摘すること。その際、「指摘内容」にどの指摘対応に対する追加指摘なのかを記載すること。
-
-- 指摘者が記載する項目
-    - 指摘区分
-    - 指摘内容
-    - 該当行
-    - 指摘者
-    - 指摘日
-
-- 担当者が記載する項目
-    - 原因区分
-    - 回答
-    - 対応方針
-    - 対応開始日
-    - 対応完了日
-    - 担当者
-
-- 再鑑者が記載する項目
-    - 再鑑者
-    - 確認日
-
 <table style="border-collapse: collapse;">
     <tr>
-        <th colspan="2" style="border: 3px solid white; background-color: gray;">設計書名：</th>
-        <th colspan="4" style="border: 3px solid white;">-</th>
-        <th colspan="2" style="border: 3px solid white; background-color: gray;">作成日：</th>
+        <th style="border: 3px solid white; background-color: gray;">ファイル名：</th>
+        <th colspan="2" style="border: 3px solid white;">models.py</th>
+        <th style="border: 3px solid white; background-color: gray;">クラス名：</th>
+        <th colspan="2" style="border: 3px solid white;">User</th>
+        <th colspan="2" style="border: 3px solid white; background-color: gray;">メソッド名：</th>
         <th colspan="2" style="border: 3px solid white;">-</th>
-        <th colspan="2" style="border: 3px solid white; background-color: gray;">最終更新日：</th>
-        <th colspan="2" style="border: 3px solid white;">-</th>
+        <th style="border: 3px solid white; background-color: gray;">作成日：</th>
+        <th style="border: 3px solid white;">2026/6/11</th>
+        <th style="border: 3px solid white; background-color: gray;">最終更新日：</th>
+        <th style="border: 3px solid white;">2026/6/11</th>
     </tr>
     <tr>
         <th colspan="6" style="border: 3px solid white; background-color: gray;">指摘者</th>
@@ -53,11 +34,11 @@
     </tr>
     <tr>
         <td style="border: 1px solid white;">1</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
+        <td style="border: 1px solid white;">改善提案</td>
+        <td style="border: 1px solid white;">20行目の`Integer(2)`はMySQLでは表示幅ヒントに過ぎず、SQLiteでは無視される。実際に値の桁数・上限を制限する効果がないため、`Integer`に修正すべきである。</td>
+        <td style="border: 1px solid white;">20</td>
+        <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
+        <td style="border: 1px solid white;">2026/6/11</td>
         <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;"></td>
