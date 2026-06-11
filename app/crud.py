@@ -284,7 +284,7 @@ def update_review_management(
 ) -> list[ReviewManagement]:
     # 1. 復習管理情報更新
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新
-    review_management = db.scalar(
+    review_management_list = db.scalar(
         select(ReviewManagement).where(
             ReviewManagement.user_id == user_id,
             ReviewManagement.review_id == review_id,
@@ -292,18 +292,18 @@ def update_review_management(
         )
     )
 
-    if not review_management:
+    if not review_management_list:
         # 2. 返り値を設定
         return [] # 復習管理情報が見つからない場合は空のリストを返す
     
     # 1.(1) REVIEW_MANAGEMENTテーブルを更新（つづき）
-    review_management.done_flag = done_flag
-    review_management.updated_at = today
+    review_management_list.done_flag = done_flag
+    review_management_list.updated_at = today
 
     # コミットとリフレッシュは呼び出し元で行う
 
     # 2. 返り値を設定
-    return [review_management]
+    return [review_management_list]
 
 
 """
