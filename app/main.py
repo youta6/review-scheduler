@@ -269,7 +269,7 @@ def read_user_endpoint(
             user_name=auth.user_name,
             delete_flag=auth.delete_flag,
             user_kind="管理者" if auth.admin_flag else "一般",
-            created_at=auth.updated_at,
+            created_at=auth.created_at,
             updated_at=auth.updated_at
         )
     else:
