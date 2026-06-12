@@ -508,9 +508,7 @@ def update_review_endpoint(
     db.commit()
     if updated_review:
         db.refresh(updated_review)
-    if update_review_management_flag:
-        db.refresh(updated_review_management)
-    if update_all_review_management_flag:
+    if update_review_management_flag or update_all_review_management_flag:
         for updated_review_management in updated_review_management_list:
             db.refresh(updated_review_management)
 
