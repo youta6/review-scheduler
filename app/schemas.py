@@ -171,7 +171,7 @@ class ReviewCreateRequest(BaseModel):
 スキーマ論理名：復習スケジュール
 """
 class ReviewSchedule(BaseModel):
-    review_time: str | None = Field(default=None, min_length=1, max_length=1)
+    review_time: int | None = Field(default=None, min_length=1, max_length=1)
     review_date: datetime | None = None
 
 """
