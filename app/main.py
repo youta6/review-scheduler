@@ -27,7 +27,7 @@ from app.schemas import(
     ReviewDeleteResponse,
     ReviewGetResponse
 )
-from app.models import ReviewManagement
+from app.models import Review, ReviewManagement
 from app.crud import(
     create_user,
     get_user,
@@ -457,6 +457,7 @@ def update_review_endpoint(
 
     # 4. 復習情報更新
     # 4.(1) 復習項目、復習内容詳細のいずれかが設定されている場合、メソッド呼び出し
+    updated_review: Review | None = None
     if (review_update_request.review_item is not None and review_update_request.review_item != "")\
         or (review_update_request.description is not None and review_update_request.description != ""):
         updated_review = update_review(
@@ -515,8 +516,8 @@ def update_review_endpoint(
     # 6. 返り値を設定
     return [
         ReviewUpdateResponse(
-            review_item=updated_review.review_item,
-            description=updated_review.description,
+            review_item=updated_review.review_item if updated_review else None,
+            description=updated_review.description if updated_review else None,
             review_schedule_with_done_flag_list=[
                 ReviewScheduleWithDoneFlag(
                     review_time=updated_review_management.review_time,
