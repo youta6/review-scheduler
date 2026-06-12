@@ -482,7 +482,8 @@ def update_review_endpoint(
             user_id=auth.user_id,
             review_id=review_update_request.review_id,
             review_time=review_update_request.review_time,
-            done_flag=review_update_request.done_flag
+            done_flag=review_update_request.done_flag,
+            today=today
         )
         update_review_management_flag = True
 
