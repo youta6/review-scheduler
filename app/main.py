@@ -495,7 +495,8 @@ def update_review_endpoint(
             db,
             user_id=auth.user_id,
             review_id=review_update_request.review_id,
-            done_flag=review_update_request.done_flag
+            done_flag=review_update_request.done_flag,
+            today=today
         )
         update_all_review_management_flag = True
     
