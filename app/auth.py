@@ -127,7 +127,7 @@ async def generate_token(
         )
     
     # 2. アクセストークンの発行
-    access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token_expires = timedelta(minutes=int(ACCESS_TOKEN_EXPIRE_MINUTES))
     to_encode = {"sub": user.user_name}.copy()
     if access_token_expires:
         expire = datetime.now(timezone.utc) + access_token_expires
