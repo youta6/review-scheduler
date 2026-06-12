@@ -149,9 +149,9 @@ class ReviewBase(BaseModel):
 スキーマ論理名：対応状況付き復習スケジュール
 """
 class ReviewScheduleWithDoneFlag(BaseModel):
-    review_time = int | None = Field(default=None, min_length=1, max_length=1)
-    review_date = datetime
-    done_status = str
+    review_time: int | None = Field(default=None, min_length=1, max_length=1)
+    review_date: datetime
+    done_status: str
 
 """
 スキーマ論理名：対応状況付き復習スケジュールベース
