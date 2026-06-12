@@ -501,7 +501,8 @@ def update_review_endpoint(
         update_all_review_management_flag = True
     
     # 5.(3) 例外処理
-    if updated_review_management_list == []:
+    if (update_review_management_flag or update_all_review_management_flag) and\
+        updated_review_management_list == []:
         raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
 
     db.commit()
