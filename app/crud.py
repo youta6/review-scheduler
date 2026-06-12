@@ -31,7 +31,7 @@ def create_user(
     today: datetime
 ) -> User:
     # 1. ユーザー情報登録
-    # 2.(1) USERテーブルに登録
+    # 1.(1) USERテーブルに登録
     new_user = User(
         username=username,
         hashed_password=hashed_password,
