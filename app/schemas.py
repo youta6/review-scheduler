@@ -157,7 +157,7 @@ class ReviewScheduleWithDoneFlag(BaseModel):
 スキーマ論理名：対応状況付き復習スケジュールベース
 """
 class ReviewScheduleWithDoneFlagBase(ReviewBase):
-    review_schedule_with_done_flag_list = list[ReviewScheduleWithDoneFlag]
+    review_schedule_with_done_flag_list: list[ReviewScheduleWithDoneFlag]
 
 """
 スキーマ論理名：復習項目作成リクエスト
