@@ -107,7 +107,6 @@ def create_user_endpoint(
         # 4. ユーザー登録
         # 4.(1) メソッド呼び出し
         user = create_user(
-            db,
             username=user_create_request.user_name,
             hashed_password=password_hash.hash(user_create_request.password),
             admin_flag=admin_flag,

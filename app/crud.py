@@ -25,7 +25,6 @@ from app.schemas import ReviewGetResponse, ReviewScheduleWithDoneFlag
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー作成.md
 """
 def create_user(
-    db: Session,
     username: str,
     hashed_password: str,
     admin_flag: bool,
