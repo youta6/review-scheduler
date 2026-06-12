@@ -17,7 +17,7 @@ from app.database import Base
 """
 class User(Base):
     __tablename__ = "users"
-    id:Mapped[int] = mapped_column(Integer(2), primary_key=True, index=True)
+    id:Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     user_name:Mapped[str] = mapped_column(String(50), unique=True, index=True)
     hashed_password:Mapped[str] = mapped_column(String(255))
     delete_flag:Mapped[bool] = mapped_column(Boolean, default=False)

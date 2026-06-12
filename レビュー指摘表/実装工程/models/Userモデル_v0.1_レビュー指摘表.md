@@ -9,7 +9,7 @@
         <th style="border: 3px solid white; background-color: gray;">作成日：</th>
         <th style="border: 3px solid white;">2026/6/11</th>
         <th style="border: 3px solid white; background-color: gray;">最終更新日：</th>
-        <th style="border: 3px solid white;">2026/6/11</th>
+        <th style="border: 3px solid white;">2026/6/12</th>
     </tr>
     <tr>
         <th colspan="6" style="border: 3px solid white; background-color: gray;">指摘者</th>
@@ -39,12 +39,12 @@
         <td style="border: 1px solid white;">20</td>
         <td style="border: 1px solid white;">Claude Sonnet 4.6</td>
         <td style="border: 1px solid white;">2026/6/11</td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
-        <td style="border: 1px solid white;"></td>
+        <td style="border: 1px solid white;">技術力不足</td>
+        <td style="border: 1px solid white;">指摘通り修正する。99件を超える場合は既にmainでエラーとしている</td>
+        <td style="border: 1px solid white;">`Integer(2)` → `Integer`に修正</td>
+        <td style="border: 1px solid white;">youta6</td>
+        <td style="border: 1px solid white;">2026/6/12</td>
+        <td style="border: 1px solid white;">2026/6/12</td>
         <td style="border: 1px solid white;"></td>
         <td style="border: 1px solid white;"></td>
     </tr>

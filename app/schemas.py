@@ -149,15 +149,15 @@ class ReviewBase(BaseModel):
 スキーマ論理名：対応状況付き復習スケジュール
 """
 class ReviewScheduleWithDoneFlag(BaseModel):
-    review_time = int | None = Field(default=None, min_length=1, max_length=1)
-    review_date = datetime
-    done_status = str
+    review_time: int | None = Field(default=None, min_length=1, max_length=1)
+    review_date: datetime
+    done_status: str
 
 """
 スキーマ論理名：対応状況付き復習スケジュールベース
 """
 class ReviewScheduleWithDoneFlagBase(ReviewBase):
-    review_schedule_with_done_flag_list = list[ReviewScheduleWithDoneFlag]
+    review_schedule_with_done_flag_list: list[ReviewScheduleWithDoneFlag]
 
 """
 スキーマ論理名：復習項目作成リクエスト
@@ -171,7 +171,7 @@ class ReviewCreateRequest(BaseModel):
 スキーマ論理名：復習スケジュール
 """
 class ReviewSchedule(BaseModel):
-    review_time: str | None = Field(default=None, min_length=1, max_length=1)
+    review_time: int | None = Field(default=None, min_length=1, max_length=1)
     review_date: datetime | None = None
 
 """
@@ -186,8 +186,8 @@ class ReviewCreateResponse(BaseModel):
 スキーマ論理名：復習項目更新リクエスト
 """
 class ReviewUpdateRequest(ReviewBase):
-    review_id: int = Field(default=None, min_length=1, max_length=3)
-    review_time: int | None = Field(default=None, min_length=1, max_length=1)
+    review_id: int = Field(default=None, le=1, ge=3)
+    review_time: int | None = Field(default=None, le=1, ge=1)
     done_flag: bool | None = None
 
 """
@@ -200,7 +200,7 @@ class ReviewUpdateResponse(ReviewScheduleWithDoneFlagBase):
 スキーマ論理名：復習項目削除リクエスト
 """
 class ReviewDeleteRequest(BaseModel):
-    review_id: int = Field(min_length=1, max_length=3)
+    review_id: int = Field(le=1, ge=3)
 
 """
 スキーマ論理名：復習項目削除レスポンス

@@ -107,7 +107,6 @@ def create_user_endpoint(
         # 4. ユーザー登録
         # 4.(1) メソッド呼び出し
         user = create_user(
-            db,
             username=user_create_request.user_name,
             hashed_password=password_hash.hash(user_create_request.password),
             admin_flag=admin_flag,
@@ -176,24 +175,28 @@ def update_user_endpoint(
     else:
         hashed_password_after = password_hash.hash(user_update_request.password_after)
     
-    # 3. ユーザー情報更新
-    # 3.(1) メソッド呼び出し
+    # 3. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 4. ユーザー情報更新
+    # 4.(1) メソッド呼び出し
     user = update_user(
         db,
+        today,
         user_name_before=user_name_before,
         hashed_password_before=hashed_password_before,
         user_name_after=user_name_after,
         hashed_password_after=hashed_password_after
     )
 
-    # 3.(2) 例外処理
+    # 4.(2) 例外処理
     if user is None:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
     
     db.commit()
     db.refresh(user)
     
-    # 4. 返り値を設定
+    # 5. 返り値を設定
     return UserUpdateResponse(
         user_name=user.user_name,
         updated_at=user.updated_at
@@ -266,7 +269,7 @@ def read_user_endpoint(
             user_name=auth.user_name,
             delete_flag=auth.delete_flag,
             user_kind="管理者" if auth.admin_flag else "一般",
-            created_at=auth.updated_at,
+            created_at=auth.created_at,
             updated_at=auth.updated_at
         )
     else:
@@ -479,7 +482,8 @@ def update_review_endpoint(
             user_id=auth.user_id,
             review_id=review_update_request.review_id,
             review_time=review_update_request.review_time,
-            done_flag=review_update_request.done_flag
+            done_flag=review_update_request.done_flag,
+            today=today
         )
         update_review_management_flag = True
 
@@ -491,19 +495,20 @@ def update_review_endpoint(
             db,
             user_id=auth.user_id,
             review_id=review_update_request.review_id,
-            done_flag=review_update_request.done_flag
+            done_flag=review_update_request.done_flag,
+            today=today
         )
         update_all_review_management_flag = True
     
     # 5.(3) 例外処理
-    if updated_review_management_list == []:
+    if (update_review_management_flag or update_all_review_management_flag) and\
+        updated_review_management_list == []:
         raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
 
     db.commit()
-    db.refresh(updated_review)
-    if update_review_management_flag:
-        db.refresh(updated_review_management)
-    if update_all_review_management_flag:
+    if updated_review:
+        db.refresh(updated_review)
+    if update_review_management_flag or update_all_review_management_flag:
         for updated_review_management in updated_review_management_list:
             db.refresh(updated_review_management)
 
