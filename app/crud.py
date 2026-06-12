@@ -255,7 +255,7 @@ def update_review(
         return None # 復習情報が見つからない場合はNoneを返す
     
     # 1.(1) REVIEWテーブルを更新（つづき）
-    if review:
+    if review_item:
         review.review_item = review_item
     if description:
         review.description = description
