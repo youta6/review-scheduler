@@ -109,15 +109,17 @@ async def generate_token(
     # ユーザーが登録されていない場合、ダミーのハッシュ済みパスワードで認証する。
     if not user:
         verify_password(form_data.password, DUMMY_HASH)
-        user = False
+        # 1.(2) ユーザーが取得できない場合、例外処理
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="ユーザー名かパスワードが間違っています。",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     
     # 1.(1) ③ 入力されたパスワードのハッシュ結果が
     # 登録済みのハッシュ済みパスワードと一致することを確認する。
     if not verify_password(form_data.password, user.hashed_password):
-        user = False
-    
-    # 1.(2) 登録されていないユーザーの場合、例外処理
-    if not user:
+        # 1.(2) ハッシュ化されたパスワードが一致しない場合、例外処理
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="ユーザー名かパスワードが間違っています。",
