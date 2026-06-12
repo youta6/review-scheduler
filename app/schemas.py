@@ -200,7 +200,7 @@ class ReviewUpdateResponse(ReviewScheduleWithDoneFlagBase):
 スキーマ論理名：復習項目削除リクエスト
 """
 class ReviewDeleteRequest(BaseModel):
-    review_id: int = Field(min_length=1, max_length=3)
+    review_id: int = Field(le=1, ge=3)
 
 """
 スキーマ論理名：復習項目削除レスポンス
