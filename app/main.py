@@ -175,24 +175,28 @@ def update_user_endpoint(
     else:
         hashed_password_after = password_hash.hash(user_update_request.password_after)
     
-    # 3. ユーザー情報更新
-    # 3.(1) メソッド呼び出し
+    # 3. 現在日時取得
+    today = datetime.now(timezone.utc)
+
+    # 4. ユーザー情報更新
+    # 4.(1) メソッド呼び出し
     user = update_user(
         db,
+        today,
         user_name_before=user_name_before,
         hashed_password_before=hashed_password_before,
         user_name_after=user_name_after,
         hashed_password_after=hashed_password_after
     )
 
-    # 3.(2) 例外処理
+    # 4.(2) 例外処理
     if user is None:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
     
     db.commit()
     db.refresh(user)
     
-    # 4. 返り値を設定
+    # 5. 返り値を設定
     return UserUpdateResponse(
         user_name=user.user_name,
         updated_at=user.updated_at

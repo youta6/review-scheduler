@@ -52,16 +52,14 @@ def create_user(
 """
 def update_user(
     db: Session,
+    today: datetime,
     user_name_before: str,
     hashed_password_before: str,
     user_name_after: str = None,
     hashed_password_after: str = None,
 ) -> User | None:
-    # 1. 現在日時取得
-    today = datetime.now(timezone.utc)
-
-    # 2. ユーザー情報更新
-    # 2. (1) USERテーブルを更新
+    # 1. ユーザー情報更新
+    # 1. (1) USERテーブルを更新
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
@@ -70,7 +68,7 @@ def update_user(
         )
     )
     if not user:
-        # 3. 返り値を設定
+        # 2. 返り値を設定
         return None  # ユーザーが見つからない場合はNoneを返す
     # 取得したデータを更新
     if user_name_after:
@@ -81,7 +79,7 @@ def update_user(
 
     # コミットとリフレッシュは呼び出し元で行う
 
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return user
 
 
