@@ -1,39 +1,47 @@
-from collections.abc import Generator
+from datetime import datetime, timezone
+from typing import Callable
 
 import pytest
-from fastapi.testclient import TestClient
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session, sessionmaker
 
-from ..main import app, get_db
-from ..models import Base
-
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+from ..models import User
+from ..schemas import UserValidationResponse
 
 
-def override_get_db() -> Generator[Session, None, None]:
-    try:
-        db = TestingSessionLocal()
-        yield db
-    finally:
-        db.close()
-
-
-app.dependency_overrides[get_db] = override_get_db
+def _default_datetime() -> datetime:
+    return datetime(2026, 1, 1, tzinfo=timezone.utc)
 
 
 @pytest.fixture()
-def test_db() -> Generator[None, None, None]:
-    Base.metadata.create_all(bind=engine)
-    yield
-    Base.metadata.drop_all(bind=engine)
+def make_auth() -> Callable[..., UserValidationResponse]:
+    """単体テスト用のログインユーザー（有効ユーザー検証．レスポンス）を生成するファクトリ"""
+    def _make_auth(**overrides) -> UserValidationResponse:
+        defaults = dict(
+            user_id=1,
+            user_name="login_user",
+            hashed_password="login_user_hashed_password",
+            delete_flag=False,
+            admin_flag=False,
+            created_at=_default_datetime(),
+            updated_at=_default_datetime(),
+        )
+        defaults.update(overrides)
+        return UserValidationResponse(**defaults)
+    return _make_auth
 
 
 @pytest.fixture()
-def client() -> TestClient:
-    return TestClient(app)
+def make_user() -> Callable[..., User]:
+    """単体テスト用のUSERレコード（モデルインスタンス）を生成するファクトリ"""
+    def _make_user(**overrides) -> User:
+        defaults = dict(
+            id=1,
+            user_name="other_user",
+            hashed_password="other_user_hashed_password",
+            delete_flag=False,
+            admin_flag=False,
+            created_at=_default_datetime(),
+            updated_at=_default_datetime(),
+        )
+        defaults.update(overrides)
+        return User(**defaults)
+    return _make_user
