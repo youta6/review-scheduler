@@ -8,7 +8,7 @@ from app.schemas import UserDeleteRequest
 
 """
 ==================================================
-トークン発行
+ユーザー情報削除
 テスト対象ファイル：main.py
 テスト対象クラス：-
 テスト対象メソッド：delete_user_endpoint
