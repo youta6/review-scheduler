@@ -44,4 +44,24 @@
         <td style="border: 1px solid white;"><a href="..\設計書\CLUD\復習項目操作\ユーザー情報取得.md">ユーザー情報取得</a></td>
         <td style="border: 1px solid white;">-</td>
     </tr>
+    <tr>
+        <td style="border: 1px solid white;"><a href=".\asyncio_run_test.py">asyncio_run_test.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;"><a href="..\app\tests\test_generate_token.py">test_generate_token.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">_call_generate_token</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">asyncio.run の挙動確認</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;"><a href=".\simplenamespace_test.py">simplenamespace_test.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;"><a href="..\app\tests\test_generate_token.py">test_generate_token.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">_make_form_data</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">SimpleNamespace の挙動確認</td>
+    </tr>
 </table>
