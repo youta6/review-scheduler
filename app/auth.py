@@ -88,6 +88,7 @@ async def get_current_active_user(
         hashed_password=user.hashed_password,
         delete_flag=user.delete_flag,
         admin_flag=user.admin_flag,
+        created_at=user.created_at,
         updated_at=user.updated_at
     )
 
