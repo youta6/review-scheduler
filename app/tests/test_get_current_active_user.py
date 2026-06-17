@@ -9,7 +9,7 @@ from app.auth import ALGORITHM, SECRET_KEY, get_current_active_user
 
 """
 ==================================================
-トークン発行
+有効ユーザー検証
 テスト対象ファイル：auth.py
 テスト対象クラス：-
 テスト対象メソッド：get_current_active_user
