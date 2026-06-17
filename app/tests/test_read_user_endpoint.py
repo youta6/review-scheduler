@@ -6,7 +6,7 @@ from app.schemas import UserGetRequest
 
 """
 ==================================================
-ユーザー情報更新
+ユーザー情報取得
 テスト対象ファイル：main.py
 テスト対象クラス：-
 テスト対象メソッド：read_user_endpoint
