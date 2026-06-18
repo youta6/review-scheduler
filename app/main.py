@@ -248,7 +248,7 @@ def delete_user_endpoint(
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報取得.md
 """
 @app.get("/users/{user_id}")
-def read_user_endpoint(
+def get_user_endpoint(
     user_get_request: UserGetRequest,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
