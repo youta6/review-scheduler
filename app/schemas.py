@@ -73,8 +73,8 @@ class UserDeleteResponse(UserBase):
 """
 スキーマ論理名：ユーザー情報取得リクエスト
 """
-class UserGetRequest(UserBase):
-    pass
+class UserGetRequest(BaseModel):
+    user_name: str | None = Field(default=None, min_length=1, max_length=50)
 
 """
 スキーマ論理名：ユーザー情報取得レスポンス

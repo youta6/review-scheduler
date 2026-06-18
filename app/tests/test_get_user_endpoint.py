@@ -20,8 +20,7 @@ from app.schemas import UserGetRequest
 """
 def test_get_user_endpoint_001_self_none(mocker, make_auth):
     auth = make_auth(user_name="login_user")
-    # UserGetRequest.user_nameはstr必須のため、None指定はmodel_constructで検証を回避する
-    request = UserGetRequest.model_construct(user_name=None)
+    request = UserGetRequest(user_name=None)
     get_user_mock = mocker.patch("app.main.get_user")
 
     response = get_user_endpoint(request, auth, db=mocker.MagicMock())
