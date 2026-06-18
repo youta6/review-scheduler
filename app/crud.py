@@ -54,7 +54,6 @@ def update_user(
     db: Session,
     today: datetime,
     user_name_before: str,
-    hashed_password_before: str,
     user_name_after: str = None,
     hashed_password_after: str = None,
 ) -> User | None:
@@ -63,8 +62,7 @@ def update_user(
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
-            User.user_name == user_name_before,
-            User.hashed_password == hashed_password_before
+            User.user_name == user_name_before
         )
     )
     if not user:
@@ -425,6 +423,7 @@ def get_reviews(db: Session, user_id: int) -> list[ReviewGetResponse] | None:
         review = group_list[0][0]
         response_list.append(
             ReviewGetResponse(
+                review_id=review.review_id,
                 review_item=review.review_item,
                 description=review.description,
                 study_date=review.study_date,

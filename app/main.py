@@ -155,17 +155,9 @@ def update_user_endpoint(
     if user_update_request.user_name_before is None\
             or user_update_request.user_name_before == auth.user_name:
             user_name_before = auth.user_name
-            if user_update_request.password_before is None:
-                hashed_password_before = auth.hashed_password
-            else:
-                hashed_password_before = password_hash.hash(user_update_request.password_before)
     else:
         if auth.admin_flag == True:
             user_name_before = user_update_request.user_name_before
-            if user_update_request.password_before is None:
-                hashed_password_before = auth.hashed_password
-            else:
-                hashed_password_before = password_hash.hash(user_update_request.password_before)
         else:
             # 2.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
@@ -187,7 +179,6 @@ def update_user_endpoint(
         db,
         today,
         user_name_before=user_name_before,
-        hashed_password_before=hashed_password_before,
         user_name_after=user_name_after,
         hashed_password_after=hashed_password_after
     )
@@ -257,7 +248,7 @@ def delete_user_endpoint(
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報取得.md
 """
 @app.get("/users/{user_id}")
-def read_user_endpoint(
+def get_user_endpoint(
     user_get_request: UserGetRequest,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
@@ -373,8 +364,7 @@ def create_review_endpoint(
 
     # 2. 学習日設定
     # 2.(1) 入力値．学習日が未設定の場合、学習日に入力値．現在日時を設定する
-    if review_create_request.study_date is None\
-        or review_create_request.study_date == "":
+    if review_create_request.study_date is None:
         study_date = today
     # 2.(2) 入力値．学習日が設定済みの場合、学習日に入力値．学習日を設定する
     else:
@@ -419,6 +409,7 @@ def create_review_endpoint(
 
     # 6. 返り値を設定
     return ReviewCreateResponse(
+        review_id=new_review.review_id,
         review_item=new_review.review_item,
         study_date=new_review.study_date,
         review_schedule_list=[
@@ -445,10 +436,10 @@ def update_review_endpoint(
         raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
     
     # 2. 入力値チェック
-    # 復習項目、復習内容詳細、復習回のいずれも設定されていない
+    # 復習項目、復習内容詳細、復習回、対応済みフラグのいずれも設定されていない
     if (review_update_request.review_item is None or review_update_request.review_item == "")\
         and (review_update_request.description is None or review_update_request.description == "")\
-        and review_update_request.review_time is None:
+        and review_update_request.review_time is None and review_update_request.done_flag is None:
             raise HTTPException(status_code=422, detail="復習項目、復習内容詳細、復習回のいずれかに入力必須です。")
     # 復習回が設定され、対応済みフラグが未設定
     if review_update_request.review_time\

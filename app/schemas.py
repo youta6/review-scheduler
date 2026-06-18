@@ -49,7 +49,6 @@ class UserCreateResponse(UserBase):
 """
 class UserUpdateRequest(BaseModel):
     user_name_before: str | None = Field(default=None, min_length=1, max_length=50)
-    password_before: str | None = Field(default=None, min_length=1, max_length=32)
     user_name_after: str | None = Field(default=None, min_length=1, max_length=50)
     password_after: str | None = Field(default=None, min_length=1, max_length=32)
 
@@ -63,7 +62,7 @@ class UserUpdateResponse(UserBase):
 スキーマ論理名：ユーザー情報削除リクエスト
 """
 class UserDeleteRequest(UserBase):
-    password: str = Field(min_length=1, max_length=32)
+    pass
 
 """
 スキーマ論理名：ユーザー情報削除レスポンス
@@ -74,8 +73,8 @@ class UserDeleteResponse(UserBase):
 """
 スキーマ論理名：ユーザー情報取得リクエスト
 """
-class UserGetRequest(UserBase):
-    pass
+class UserGetRequest(BaseModel):
+    user_name: str | None = Field(default=None, min_length=1, max_length=50)
 
 """
 スキーマ論理名：ユーザー情報取得レスポンス
@@ -149,7 +148,7 @@ class ReviewBase(BaseModel):
 スキーマ論理名：対応状況付き復習スケジュール
 """
 class ReviewScheduleWithDoneFlag(BaseModel):
-    review_time: int | None = Field(default=None, ge=1, le=1)
+    review_time: int | None = Field(default=None, ge=1, le=5)
     review_date: datetime
     done_status: str
 
@@ -171,13 +170,14 @@ class ReviewCreateRequest(BaseModel):
 スキーマ論理名：復習スケジュール
 """
 class ReviewSchedule(BaseModel):
-    review_time: int | None = Field(default=None, ge=1, le=1)
+    review_time: int | None = Field(default=None, ge=1, le=5)
     review_date: datetime | None = None
 
 """
 スキーマ論理名：復習項目作成レスポンス
 """
 class ReviewCreateResponse(BaseModel):
+    review_id: int | None = Field(default=None, ge=1, le=3)
     review_item: str | None = Field(default=None, min_length=1, max_length=200)
     study_date: datetime | None = None
     review_schedule_list: List[ReviewSchedule] | None = None
@@ -187,7 +187,7 @@ class ReviewCreateResponse(BaseModel):
 """
 class ReviewUpdateRequest(ReviewBase):
     review_id: int = Field(default=None, ge=1, le=3)
-    review_time: int | None = Field(default=None, ge=1, le=1)
+    review_time: int | None = Field(default=None, ge=1, le=5)
     done_flag: bool | None = None
 
 """
@@ -212,4 +212,5 @@ class ReviewDeleteResponse(BaseModel):
 スキーマ論理名：復習項目取得レスポンス
 """
 class ReviewGetResponse(ReviewScheduleWithDoneFlagBase):
+    review_id: int | None = Field(default=None, ge=1, le=3)
     study_date: datetime | None = None
