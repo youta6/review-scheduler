@@ -155,17 +155,9 @@ def update_user_endpoint(
     if user_update_request.user_name_before is None\
             or user_update_request.user_name_before == auth.user_name:
             user_name_before = auth.user_name
-            if user_update_request.password_before is None:
-                hashed_password_before = auth.hashed_password
-            else:
-                hashed_password_before = password_hash.hash(user_update_request.password_before)
     else:
         if auth.admin_flag == True:
             user_name_before = user_update_request.user_name_before
-            if user_update_request.password_before is None:
-                hashed_password_before = auth.hashed_password
-            else:
-                hashed_password_before = password_hash.hash(user_update_request.password_before)
         else:
             # 2.(2) 例外処理
             raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
@@ -187,7 +179,6 @@ def update_user_endpoint(
         db,
         today,
         user_name_before=user_name_before,
-        hashed_password_before=hashed_password_before,
         user_name_after=user_name_after,
         hashed_password_after=hashed_password_after
     )

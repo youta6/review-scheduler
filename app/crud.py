@@ -54,7 +54,6 @@ def update_user(
     db: Session,
     today: datetime,
     user_name_before: str,
-    hashed_password_before: str,
     user_name_after: str = None,
     hashed_password_after: str = None,
 ) -> User | None:
@@ -63,8 +62,7 @@ def update_user(
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
-            User.user_name == user_name_before,
-            User.hashed_password == hashed_password_before
+            User.user_name == user_name_before
         )
     )
     if not user:
