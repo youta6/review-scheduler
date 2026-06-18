@@ -364,8 +364,7 @@ def create_review_endpoint(
 
     # 2. 学習日設定
     # 2.(1) 入力値．学習日が未設定の場合、学習日に入力値．現在日時を設定する
-    if review_create_request.study_date is None\
-        or review_create_request.study_date == "":
+    if review_create_request.study_date is None:
         study_date = today
     # 2.(2) 入力値．学習日が設定済みの場合、学習日に入力値．学習日を設定する
     else:
