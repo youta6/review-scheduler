@@ -132,7 +132,6 @@ def create_user_endpoint(
 ===ユーザー情報更新===
 設計書：review-scheduler\設計書\サーバー処理（main）\ユーザー操作\ユーザー情報更新.md
 """
-# TODO:jwt認証済みの操作であるため、変更前パスワードを要求しないように修正する。
 @app.put("/users/{user_id}")
 def update_user_endpoint(
     user_update_request: UserUpdateRequest,
