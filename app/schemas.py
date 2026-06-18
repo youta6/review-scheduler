@@ -148,7 +148,7 @@ class ReviewBase(BaseModel):
 スキーマ論理名：対応状況付き復習スケジュール
 """
 class ReviewScheduleWithDoneFlag(BaseModel):
-    review_time: int | None = Field(default=None, ge=1, le=1)
+    review_time: int | None = Field(default=None, ge=1, le=5)
     review_date: datetime
     done_status: str
 
@@ -186,7 +186,7 @@ class ReviewCreateResponse(BaseModel):
 """
 class ReviewUpdateRequest(ReviewBase):
     review_id: int = Field(default=None, ge=1, le=3)
-    review_time: int | None = Field(default=None, ge=1, le=1)
+    review_time: int | None = Field(default=None, ge=1, le=5)
     done_flag: bool | None = None
 
 """
