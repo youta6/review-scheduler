@@ -62,7 +62,7 @@ class UserUpdateResponse(UserBase):
 スキーマ論理名：ユーザー情報削除リクエスト
 """
 class UserDeleteRequest(UserBase):
-    password: str = Field(min_length=1, max_length=32)
+    pass
 
 """
 スキーマ論理名：ユーザー情報削除レスポンス
