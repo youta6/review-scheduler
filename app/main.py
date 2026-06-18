@@ -445,10 +445,10 @@ def update_review_endpoint(
         raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
     
     # 2. 入力値チェック
-    # 復習項目、復習内容詳細、復習回のいずれも設定されていない
+    # 復習項目、復習内容詳細、復習回、対応済みフラグのいずれも設定されていない
     if (review_update_request.review_item is None or review_update_request.review_item == "")\
         and (review_update_request.description is None or review_update_request.description == "")\
-        and review_update_request.review_time is None:
+        and review_update_request.review_time is None and review_update_request.done_flag is None:
             raise HTTPException(status_code=422, detail="復習項目、復習内容詳細、復習回のいずれかに入力必須です。")
     # 復習回が設定され、対応済みフラグが未設定
     if review_update_request.review_time\
