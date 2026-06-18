@@ -177,6 +177,7 @@ class ReviewSchedule(BaseModel):
 スキーマ論理名：復習項目作成レスポンス
 """
 class ReviewCreateResponse(BaseModel):
+    review_id: int | None = Field(default=None, ge=1, le=3)
     review_item: str | None = Field(default=None, min_length=1, max_length=200)
     study_date: datetime | None = None
     review_schedule_list: List[ReviewSchedule] | None = None

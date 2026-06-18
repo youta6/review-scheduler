@@ -409,6 +409,7 @@ def create_review_endpoint(
 
     # 6. 返り値を設定
     return ReviewCreateResponse(
+        review_id=new_review.review_id,
         review_item=new_review.review_item,
         study_date=new_review.study_date,
         review_schedule_list=[
