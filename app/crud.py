@@ -423,6 +423,7 @@ def get_reviews(db: Session, user_id: int) -> list[ReviewGetResponse] | None:
         review = group_list[0][0]
         response_list.append(
             ReviewGetResponse(
+                review_id=review.review_id,
                 review_item=review.review_item,
                 description=review.description,
                 study_date=review.study_date,
