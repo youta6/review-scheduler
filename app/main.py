@@ -553,7 +553,7 @@ def delete_review_endpoint(
 
     # 2.(3) 例外処理
     if deleted_review_count is None and deleted_review_management_count is None:
-        raise HTTPException(status_code=404, detail="復習項目は既に削除済みです")
+        raise HTTPException(status_code=404, detail="対象の復習項目は存在しません")
     
     db.commit()
 
