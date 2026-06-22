@@ -1,0 +1,152 @@
+# ユーザー情報取得（ID指定）
+
+## ○メソッド概要
+### クラス名
+<table style="border-collapse: collapse;">
+    <tr>
+        <th style="border: 3px solid white; background-color: gray;">クラス名</th>
+        <th style="border: 3px solid white;">crud </th>
+    </tr>
+</table>
+
+### メソッド名
+<table style="border-collapse: collapse;">
+    <tr>
+        <th style="border: 3px solid white; background-color: gray;">論理名</th>
+        <th style="border: 3px solid white; background-color: gray;">物理名</th>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">ユーザー情報取得（ID指定）</td>
+        <td style="border: 1px solid white;">get_user_by_id</td>
+    </tr>
+</table>
+
+---
+
+## ○引数
+<table style="border-collapse: collapse;">
+    <tr>
+        <th style="border: 3px solid white; background-color: gray;">論理名</th>
+        <th style="border: 3px solid white; background-color: gray;">物理名</th>
+        <th style="border: 3px solid white; background-color: gray;">型</th>
+        <th style="border: 3px solid white; background-color: gray;">必須</th>
+        <th style="border: 3px solid white; background-color: gray;">最小桁</th>
+        <th style="border: 3px solid white; background-color: gray;">最大桁</th>
+        <th style="border: 3px solid white; background-color: gray;">備考</th>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">データベース</td>
+        <td style="border: 1px solid white;">db</td>
+        <td style="border: 1px solid white;">Session</td>
+        <td style="border: 1px solid white;">○</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">ユーザーID</td>
+        <td style="border: 1px solid white;">user_id</td>
+        <td style="border: 1px solid white;">int</td>
+        <td style="border: 1px solid white;">○</td>
+        <td style="border: 1px solid white;">1</td>
+        <td style="border: 1px solid white;">2</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+</table>
+
+---
+
+## ○処理概要
+### 1. ユーザー情報取得
+<table style="border-collapse: collapse;">
+    <tr>
+        <th style="border: 3px solid white; background-color: gray;">テーブル名：</th>
+        <th style="border: 3px solid white;">USER</th>
+        <th style="border: 3px solid white; background-color: gray;">DML：</th>
+        <th colspan="2" style="border: 3px solid white;">SELECT</th>
+    </tr>
+    <tr>
+        <th colspan="2"style="border: 3px solid white; background-color: gray;">項目名</th>
+        <th style="border: 3px solid white; background-color: gray;">必須</th>
+        <th style="border: 3px solid white; background-color: gray;">設定値</th>
+        <th style="border: 3px solid white; background-color: gray;">備考</th>
+    </tr>
+    <tr>
+        <th rowspan="7" style="border: 3px solid white; background-color: gray;">取得内容</th>
+        <td style="border: 1px solid white;">ユーザーID</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">ユーザー名</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">ハッシュ済みパスワード</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">削除済みフラグ</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">管理者フラグ</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">作成日</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">更新日</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <th rowspan="2" style="border: 3px solid white; background-color: gray;">検索条件</th>
+        <td style="border: 1px solid white;">ユーザーID</td>
+        <td style="border: 1px solid white;">○</td>
+        <td style="border: 1px solid white;">入力値．ユーザーID</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+    <tr>
+        <td style="border: 1px solid white;">削除済みフラグ</td>
+        <td style="border: 1px solid white;">○</td>
+        <td style="border: 1px solid white;">False</td>
+        <td style="border: 1px solid white;">-</td>
+    </tr>
+</table>
+
+### 2. 返り値を設定
+
+---
+
+## ○返り値
+<table style="border-collapse: collapse;">
+    <tr>
+        <th colspan="2" style="border: 3px solid white; background-color: gray;">論理名</th>
+        <th style="border: 3px solid white; background-color: gray;">物理名</th>
+        <th style="border: 3px solid white; background-color: gray;">型</th>
+        <th style="border: 3px solid white; background-color: gray;">設定値</th>
+        <th style="border: 3px solid white; background-color: gray;">備考</th>
+    </tr>
+    <tr>
+        <td colspan="2" style="border: 1px solid white;">ユーザー情報</td>
+        <td style="border: 1px solid white;">user</td>
+        <td style="border: 1px solid white;">User</td>
+        <td style="border: 1px solid white;">ユーザー情報取得．レスポンス</td>
+        <td style="border: 1px solid white;">ユーザーが見つからない場合はNoneを返す</td>
+    </tr>
+</table>

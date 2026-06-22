@@ -15,9 +15,7 @@ class HealthCheck(BaseModel):
 - ユーザー作成レスポンス
 - ユーザー情報更新リクエスト
 - ユーザー情報更新レスポンス
-- ユーザー情報削除リクエスト
 - ユーザー情報削除レスポンス
-- ユーザー情報取得リクエスト
 - ユーザー情報取得レスポンス
 
 設計書：review-scheduler\設計書\スキーマ（schemas）\ユーザー操作.md
@@ -63,12 +61,6 @@ class UserUpdateResponse(UserBase):
 """
 class UserDeleteResponse(UserBase):
     updated_at: datetime
-
-"""
-スキーマ論理名：ユーザー情報取得リクエスト
-"""
-class UserGetRequest(BaseModel):
-    user_name: str | None = Field(default=None, min_length=1, max_length=50)
 
 """
 スキーマ論理名：ユーザー情報取得レスポンス
@@ -123,7 +115,6 @@ class UserValidationResponse(BaseModel):
 - 復習項目作成レスポンス
 - 復習項目更新リクエスト
 - 復習項目更新レスポンス
-- 復習項目削除リクエスト
 - 復習項目削除レスポンス
 - 復習項目取得レスポンス
 
@@ -189,12 +180,6 @@ class ReviewUpdateRequest(ReviewBase):
 """
 class ReviewUpdateResponse(ReviewScheduleWithDoneFlagBase):
     pass
-
-"""
-スキーマ論理名：復習項目削除リクエスト
-"""
-class ReviewDeleteRequest(BaseModel):
-    review_id: int = Field(ge=1, le=3)
 
 """
 スキーマ論理名：復習項目削除レスポンス

@@ -14,7 +14,6 @@ from app.schemas import(
     UserUpdateRequest,
     UserUpdateResponse,
     UserDeleteResponse,
-    UserGetRequest,
     UserGetResponse,
     ReviewCreateRequest,
     ReviewCreateResponse,
@@ -22,12 +21,12 @@ from app.schemas import(
     ReviewUpdateRequest,
     ReviewUpdateResponse,
     ReviewScheduleWithDoneFlag,
-    ReviewDeleteRequest,
     ReviewDeleteResponse,
     ReviewGetResponse
 )
 from app.models import Review, ReviewManagement
 from app.crud import(
+    get_user_by_id,
     create_user,
     get_user,
     get_users,
@@ -206,7 +205,9 @@ def delete_user_endpoint(
     db: Session = Depends(get_db)
 )-> UserDeleteResponse:
     # 1. 権限チェック
+    # 1.(1) 条件分岐
     if user_id != auth.user_id and not auth.admin_flag:
+        # 1.(2) 条件分岐
         raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
 
     # 2. 現在日時取得
@@ -240,15 +241,19 @@ def delete_user_endpoint(
 """
 @app.get("/users/{user_id}")
 def get_user_endpoint(
-    user_get_request: UserGetRequest,
+    user_id: int,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
-)-> UserGetResponse:
-    # 1. ユーザー情報取得
-    # 1.(1) ログインユーザー検証結果と入力値により処理分岐
-    if user_get_request.user_name is None\
-        or user_get_request.user_name == auth.user_name:
-        # ログインユーザー検証．レスポンスを取得対象ユーザーとしてレスポンス
+) -> UserGetResponse:
+    # 1. 権限チェック
+    # 2.(1) 条件分岐
+    if user_id != auth.user_id and not auth.admin_flag:
+        # 1.(2) 例外処理
+        raise HTTPException(status_code=401, detail="他者のユーザー情報は取得できません")
+
+    # 2. ユーザー情報取得
+    # 2.(1) 自己取得判定
+    if user_id == auth.user_id:
         return UserGetResponse(
             user_id=auth.user_id,
             user_name=auth.user_name,
@@ -257,21 +262,15 @@ def get_user_endpoint(
             created_at=auth.created_at,
             updated_at=auth.updated_at
         )
-    else:
-        if auth.admin_flag == True:
-            user_name = user_get_request.user_name
-        else:
-            # 1.(2) 例外処理
-            raise HTTPException(status_code=401, detail="他者のユーザー情報は取得できません")
-    
-    # 1.(3) ユーザー情報取得
-    user = get_user(db, user_name=user_name)
 
-    # 1.(4) 例外処理
+    # 2.(2) メソッド呼び出し
+    user = get_user_by_id(db, user_id=user_id)
+
+    # 2.(3) 例外処理
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
-    
-    # 2. 返り値を設定
+
+    # 3. 返り値を設定
     return UserGetResponse(
         user_id=user.id,
         user_name=user.user_name,
@@ -520,36 +519,32 @@ def update_review_endpoint(
 """
 @app.delete("/users/{user_id}/reviews/{review_id}")
 def delete_review_endpoint(
-    review_delete_request: ReviewDeleteRequest,
+    review_id: int,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ) -> ReviewDeleteResponse:
-    # 1. ユーザー存在チェック
-    if auth.delete_flag:
-        raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
-
-    # 2. 復習項目を削除
-    # 2.(1) 復習情報削除メソッド呼び出し
+    # 1. 復習項目を削除
+    # 1.(1) 復習情報削除メソッド呼び出し
     deleted_review_count = delete_review(
         db,
         user_id=auth.user_id,
-        review_id=review_delete_request.review_id
+        review_id=review_id
     )
 
-    # 2.(2) 復習管理情報削除メソッド呼び出し
+    # 1.(2) 復習管理情報削除メソッド呼び出し
     deleted_review_management_count = delete_review_management(
         db,
         user_id=auth.user_id,
-        review_id=review_delete_request.review_id
+        review_id=review_id
     )
 
-    # 2.(3) 例外処理
+    # 1.(3) 例外処理
     if deleted_review_count is None and deleted_review_management_count is None:
         raise HTTPException(status_code=404, detail="対象の復習項目は存在しません")
-    
+
     db.commit()
 
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return ReviewDeleteResponse(status=True)
 
 

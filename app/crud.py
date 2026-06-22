@@ -127,6 +127,26 @@ def get_user(db: Session, user_name: str) -> User | None:
 
 
 """
+===ユーザー情報取得（ID指定）===
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報取得（ID指定）.md
+"""
+def get_user_by_id(db: Session, user_id: int) -> User | None:
+    # 1. ユーザー情報取得
+    user = db.scalar(
+        select(User).where(
+            User.id == user_id,
+            User.delete_flag == False
+        )
+    )
+
+    if not user:
+        return None
+
+    # 2. 返り値を設定
+    return user
+
+
+"""
 ===全ユーザー情報取得===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\全ユーザー情報取得.md
 """
@@ -183,7 +203,7 @@ def create_review(
     new_review = Review(
         user_id=user_id,
         review_id=new_review_id,
-        review=review_item,
+        review_item=review_item,
         description=description,
         study_date=study_date,
         created_at=today,
@@ -215,7 +235,7 @@ def create_review_management(
         user_id=user_id,
         review_id=review_id,
         review_time=review_time,
-        review_date=review_date_list[review_time],
+        review_date=review_date_list[review_time - 1],
         done_flag=False,
         created_at=today,
         updated_at=today
