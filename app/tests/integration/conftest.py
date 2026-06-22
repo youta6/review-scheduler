@@ -35,3 +35,12 @@ def client(db_session):
     with TestClient(app) as c:
         yield c
     app.dependency_overrides.clear()
+
+
+@pytest.fixture()
+def make_token(client):
+    def _make_token(user_name: str, password: str) -> str:
+        client.post("/users", json={"user_name": user_name, "password": password})
+        response = client.post("/token", data={"username": user_name, "password": password})
+        return response.json()["access_token"]
+    return _make_token
