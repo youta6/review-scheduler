@@ -13,7 +13,6 @@ from app.schemas import(
     UserCreateResponse,
     UserUpdateRequest,
     UserUpdateResponse,
-    UserDeleteRequest,
     UserDeleteResponse,
     UserGetRequest,
     UserGetResponse,
@@ -202,21 +201,13 @@ def update_user_endpoint(
 """
 @app.delete("/users/{user_id}")
 def delete_user_endpoint(
-    user_delete_request: UserDeleteRequest,
+    user_id: int,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 )-> UserDeleteResponse:
-    # 1. 削除対象ユーザー設定
-    # 1.(1) ログインユーザー検証結果と入力値により処理分岐
-    if user_delete_request.user_name is None\
-        or user_delete_request.user_name == auth.user_name:
-        user_name = auth.user_name
-    else:
-        if auth.admin_flag == True:
-            user_name = user_delete_request.user_name
-        else:
-            # 1.(2) 例外処理
-            raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
+    # 1. 権限チェック
+    if user_id != auth.user_id and not auth.admin_flag:
+        raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
 
     # 2. 現在日時取得
     today = datetime.now(timezone.utc)
@@ -225,14 +216,14 @@ def delete_user_endpoint(
     # 3.(1) メソッド呼び出し
     user = delete_user(
         db,
-        user_name=user_name,
+        user_id=user_id,
         today=today
     )
 
     # 3.(2) 例外処理
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
-    
+
     db.commit()
     db.refresh(user)
 

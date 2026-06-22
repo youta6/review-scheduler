@@ -85,13 +85,13 @@ def update_user(
 ===ユーザー情報削除===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報削除.md
 """
-def delete_user(db: Session, user_name: str, today: datetime) -> User | None:
+def delete_user(db: Session, user_id: int, today: datetime) -> User | None:
     # 1. ユーザー情報削除
     # 1.(1) USERテーブルを更新
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
-            User.user_name == user_name
+            User.id == user_id
         )
     )
     if not user:

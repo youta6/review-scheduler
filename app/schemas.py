@@ -59,12 +59,6 @@ class UserUpdateResponse(UserBase):
     updated_at: datetime
 
 """
-スキーマ論理名：ユーザー情報削除リクエスト
-"""
-class UserDeleteRequest(BaseModel):
-    user_name: str | None = Field(default=None, min_length=1, max_length=50)
-
-"""
 スキーマ論理名：ユーザー情報削除レスポンス
 """
 class UserDeleteResponse(UserBase):
