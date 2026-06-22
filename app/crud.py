@@ -25,7 +25,7 @@ from app.schemas import ReviewGetResponse, ReviewScheduleWithDoneFlag
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー作成.md
 """
 def create_user(
-    username: str,
+    user_name: str,
     hashed_password: str,
     admin_flag: bool,
     today: datetime
@@ -33,7 +33,7 @@ def create_user(
     # 1. ユーザー情報登録
     # 1.(1) USERテーブルに登録
     new_user = User(
-        username=username,
+        user_name=user_name,
         hashed_password=hashed_password,
         admin_flag=admin_flag,
         created_at=today,

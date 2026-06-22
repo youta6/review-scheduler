@@ -94,20 +94,20 @@ def create_user_endpoint(
     if user_create_request.user_name == ADMIN_SECRET_KEY_NAME and user_create_request.password == ADMIN_SECRET_KEY_PASSWORD:
         admin_flag = True
 
+    # 2. 登録ユーザー数上限チェック
+    # 2.(1) メソッド呼び出し
+    all_users = get_users(db)
+    if len(all_users) >= 99:
+        raise HTTPException(status_code=409, detail="登録可能ユーザーが上限に達しました。")
+
+    # 3. 現在日時取得
+    today = datetime.now(timezone.utc)
+
     try:
-        # 2. 登録ユーザー数上限チェック
-        # 2.(1) メソッド呼び出し
-        all_users = get_users(db)
-        if len(all_users) >= 99:
-            raise HTTPException(status_code=409, detail="登録可能ユーザーが上限に達しました。")
-
-        # 3. 現在日時取得
-        today = datetime.now(timezone.utc)
-
         # 4. ユーザー登録
         # 4.(1) メソッド呼び出し
         user = create_user(
-            username=user_create_request.user_name,
+            user_name=user_create_request.user_name,
             hashed_password=password_hash.hash(user_create_request.password),
             admin_flag=admin_flag,
             today=today
@@ -123,7 +123,7 @@ def create_user_endpoint(
             user_kind="管理者" if admin_flag else "一般",
             created_at=user.created_at
         )
-    
+
     # 4.(2) 例外処理
     except Exception:
         raise HTTPException(status_code=409, detail="入力したユーザー名は既に登録されています")
