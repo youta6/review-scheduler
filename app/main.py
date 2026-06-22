@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import schemas
 from pwdlib import PasswordHash
 from app.database import get_db, create_tables
-from app.auth import get_current_active_user
+from app.auth import get_current_active_user, router as auth_router
 from app.schemas import(
     UserCreateRequest,
     UserCreateResponse,
@@ -45,6 +45,7 @@ from app.crud import(
 )
 
 app = FastAPI()
+app.include_router(auth_router)
 
 password_hash = PasswordHash.recommended()
 

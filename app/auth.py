@@ -4,7 +4,7 @@ from typing import Annotated
 from dotenv import load_dotenv
 
 import jwt
-from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jwt.exceptions import InvalidTokenError
 from pwdlib import PasswordHash
@@ -25,7 +25,7 @@ DUMMY_HASH = os.getenv("DUMMY_HASH")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-app = FastAPI()
+router = APIRouter()
 
 # 入力されたパスワードとDBに保存されているハッシュ済みパスワードを比較する関数
 def verify_password(plain_password, hashed_password):
@@ -96,7 +96,7 @@ async def get_current_active_user(
 ===トークン発行===
 設計書：review-scheduler\設計書\認証・認可（auth）\トークン発行.md
 """
-@app.post("/token")
+@router.post("/token")
 async def generate_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
