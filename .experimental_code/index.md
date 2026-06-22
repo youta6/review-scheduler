@@ -64,4 +64,14 @@
         <td style="border: 1px solid white;">-</td>
         <td style="border: 1px solid white;">SimpleNamespace の挙動確認</td>
     </tr>
+    <tr>
+        <td style="border: 1px solid white;"><a href=".\sqlite_memory_staticpool_test.py">sqlite_memory_staticpool_test.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;"><a href="..\app\tests\integration\conftest.py">conftest.py</a></td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">db_session</td>
+        <td style="border: 1px solid white;">-</td>
+        <td style="border: 1px solid white;">sqlite:///:memory: のコネクション分離と StaticPool による解決の確認</td>
+    </tr>
 </table>
