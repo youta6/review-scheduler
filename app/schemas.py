@@ -15,9 +15,7 @@ class HealthCheck(BaseModel):
 - ユーザー作成レスポンス
 - ユーザー情報更新リクエスト
 - ユーザー情報更新レスポンス
-- ユーザー情報削除リクエスト
 - ユーザー情報削除レスポンス
-- ユーザー情報取得リクエスト
 - ユーザー情報取得レスポンス
 
 設計書：review-scheduler\設計書\スキーマ（schemas）\ユーザー操作.md
@@ -59,22 +57,10 @@ class UserUpdateResponse(UserBase):
     updated_at: datetime
 
 """
-スキーマ論理名：ユーザー情報削除リクエスト
-"""
-class UserDeleteRequest(BaseModel):
-    user_name: str | None = Field(default=None, min_length=1, max_length=50)
-
-"""
 スキーマ論理名：ユーザー情報削除レスポンス
 """
 class UserDeleteResponse(UserBase):
     updated_at: datetime
-
-"""
-スキーマ論理名：ユーザー情報取得リクエスト
-"""
-class UserGetRequest(BaseModel):
-    user_name: str | None = Field(default=None, min_length=1, max_length=50)
 
 """
 スキーマ論理名：ユーザー情報取得レスポンス
@@ -129,7 +115,6 @@ class UserValidationResponse(BaseModel):
 - 復習項目作成レスポンス
 - 復習項目更新リクエスト
 - 復習項目更新レスポンス
-- 復習項目削除リクエスト
 - 復習項目削除レスポンス
 - 復習項目取得レスポンス
 
@@ -177,7 +162,7 @@ class ReviewSchedule(BaseModel):
 スキーマ論理名：復習項目作成レスポンス
 """
 class ReviewCreateResponse(BaseModel):
-    review_id: int | None = Field(default=None, ge=1, le=3)
+    review_id: int | None = Field(default=None, ge=1, le=999)
     review_item: str | None = Field(default=None, min_length=1, max_length=200)
     study_date: datetime | None = None
     review_schedule_list: List[ReviewSchedule] | None = None
@@ -186,7 +171,7 @@ class ReviewCreateResponse(BaseModel):
 スキーマ論理名：復習項目更新リクエスト
 """
 class ReviewUpdateRequest(ReviewBase):
-    review_id: int = Field(default=None, ge=1, le=3)
+    review_id: int = Field(default=None, ge=1, le=999)
     review_time: int | None = Field(default=None, ge=1, le=5)
     done_flag: bool | None = None
 
@@ -195,12 +180,6 @@ class ReviewUpdateRequest(ReviewBase):
 """
 class ReviewUpdateResponse(ReviewScheduleWithDoneFlagBase):
     pass
-
-"""
-スキーマ論理名：復習項目削除リクエスト
-"""
-class ReviewDeleteRequest(BaseModel):
-    review_id: int = Field(ge=1, le=3)
 
 """
 スキーマ論理名：復習項目削除レスポンス
@@ -212,5 +191,5 @@ class ReviewDeleteResponse(BaseModel):
 スキーマ論理名：復習項目取得レスポンス
 """
 class ReviewGetResponse(ReviewScheduleWithDoneFlagBase):
-    review_id: int | None = Field(default=None, ge=1, le=3)
+    review_id: int | None = Field(default=None, ge=1, le=999)
     study_date: datetime | None = None

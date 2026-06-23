@@ -7,15 +7,13 @@ from sqlalchemy.orm import Session
 from app import schemas
 from pwdlib import PasswordHash
 from app.database import get_db, create_tables
-from app.auth import get_current_active_user
+from app.auth import get_current_active_user, router as auth_router
 from app.schemas import(
     UserCreateRequest,
     UserCreateResponse,
     UserUpdateRequest,
     UserUpdateResponse,
-    UserDeleteRequest,
     UserDeleteResponse,
-    UserGetRequest,
     UserGetResponse,
     ReviewCreateRequest,
     ReviewCreateResponse,
@@ -23,12 +21,12 @@ from app.schemas import(
     ReviewUpdateRequest,
     ReviewUpdateResponse,
     ReviewScheduleWithDoneFlag,
-    ReviewDeleteRequest,
     ReviewDeleteResponse,
     ReviewGetResponse
 )
 from app.models import Review, ReviewManagement
 from app.crud import(
+    get_user_by_id,
     create_user,
     get_user,
     get_users,
@@ -45,6 +43,7 @@ from app.crud import(
 )
 
 app = FastAPI()
+app.include_router(auth_router)
 
 password_hash = PasswordHash.recommended()
 
@@ -94,20 +93,20 @@ def create_user_endpoint(
     if user_create_request.user_name == ADMIN_SECRET_KEY_NAME and user_create_request.password == ADMIN_SECRET_KEY_PASSWORD:
         admin_flag = True
 
+    # 2. 登録ユーザー数上限チェック
+    # 2.(1) メソッド呼び出し
+    all_users = get_users(db)
+    if len(all_users) >= 99:
+        raise HTTPException(status_code=409, detail="登録可能ユーザーが上限に達しました。")
+
+    # 3. 現在日時取得
+    today = datetime.now(timezone.utc)
+
     try:
-        # 2. 登録ユーザー数上限チェック
-        # 2.(1) メソッド呼び出し
-        all_users = get_users(db)
-        if len(all_users) >= 99:
-            raise HTTPException(status_code=409, detail="登録可能ユーザーが上限に達しました。")
-
-        # 3. 現在日時取得
-        today = datetime.now(timezone.utc)
-
         # 4. ユーザー登録
         # 4.(1) メソッド呼び出し
         user = create_user(
-            username=user_create_request.user_name,
+            user_name=user_create_request.user_name,
             hashed_password=password_hash.hash(user_create_request.password),
             admin_flag=admin_flag,
             today=today
@@ -123,7 +122,7 @@ def create_user_endpoint(
             user_kind="管理者" if admin_flag else "一般",
             created_at=user.created_at
         )
-    
+
     # 4.(2) 例外処理
     except Exception:
         raise HTTPException(status_code=409, detail="入力したユーザー名は既に登録されています")
@@ -201,21 +200,15 @@ def update_user_endpoint(
 """
 @app.delete("/users/{user_id}")
 def delete_user_endpoint(
-    user_delete_request: UserDeleteRequest,
+    user_id: int,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 )-> UserDeleteResponse:
-    # 1. 削除対象ユーザー設定
-    # 1.(1) ログインユーザー検証結果と入力値により処理分岐
-    if user_delete_request.user_name is None\
-        or user_delete_request.user_name == auth.user_name:
-        user_name = auth.user_name
-    else:
-        if auth.admin_flag == True:
-            user_name = user_delete_request.user_name
-        else:
-            # 1.(2) 例外処理
-            raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
+    # 1. 権限チェック
+    # 1.(1) 条件分岐
+    if user_id != auth.user_id and not auth.admin_flag:
+        # 1.(2) 条件分岐
+        raise HTTPException(status_code=401, detail="他者のユーザー情報は変更できません")
 
     # 2. 現在日時取得
     today = datetime.now(timezone.utc)
@@ -224,14 +217,14 @@ def delete_user_endpoint(
     # 3.(1) メソッド呼び出し
     user = delete_user(
         db,
-        user_name=user_name,
+        user_id=user_id,
         today=today
     )
 
     # 3.(2) 例外処理
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
-    
+
     db.commit()
     db.refresh(user)
 
@@ -248,15 +241,19 @@ def delete_user_endpoint(
 """
 @app.get("/users/{user_id}")
 def get_user_endpoint(
-    user_get_request: UserGetRequest,
+    user_id: int,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
-)-> UserGetResponse:
-    # 1. ユーザー情報取得
-    # 1.(1) ログインユーザー検証結果と入力値により処理分岐
-    if user_get_request.user_name is None\
-        or user_get_request.user_name == auth.user_name:
-        # ログインユーザー検証．レスポンスを取得対象ユーザーとしてレスポンス
+) -> UserGetResponse:
+    # 1. 権限チェック
+    # 2.(1) 条件分岐
+    if user_id != auth.user_id and not auth.admin_flag:
+        # 1.(2) 例外処理
+        raise HTTPException(status_code=401, detail="他者のユーザー情報は取得できません")
+
+    # 2. ユーザー情報取得
+    # 2.(1) 自己取得判定
+    if user_id == auth.user_id:
         return UserGetResponse(
             user_id=auth.user_id,
             user_name=auth.user_name,
@@ -265,21 +262,15 @@ def get_user_endpoint(
             created_at=auth.created_at,
             updated_at=auth.updated_at
         )
-    else:
-        if auth.admin_flag == True:
-            user_name = user_get_request.user_name
-        else:
-            # 1.(2) 例外処理
-            raise HTTPException(status_code=401, detail="他者のユーザー情報は取得できません")
-    
-    # 1.(3) ユーザー情報取得
-    user = get_user(db, user_name=user_name)
 
-    # 1.(4) 例外処理
+    # 2.(2) メソッド呼び出し
+    user = get_user_by_id(db, user_id=user_id)
+
+    # 2.(3) 例外処理
     if not user:
         raise HTTPException(status_code=404, detail="ユーザーが見つかりませんでした")
-    
-    # 2. 返り値を設定
+
+    # 3. 返り値を設定
     return UserGetResponse(
         user_id=user.id,
         user_name=user.user_name,
@@ -430,11 +421,7 @@ def update_review_endpoint(
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 )-> list[ReviewUpdateResponse]:
-    # 1. ユーザー存在チェック
-    if auth.delete_flag:
-        raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
-    
-    # 2. 入力値チェック
+    # 1. 入力値チェック
     # 復習項目、復習内容詳細、復習回、対応済みフラグのいずれも設定されていない
     if (review_update_request.review_item is None or review_update_request.review_item == "")\
         and (review_update_request.description is None or review_update_request.description == "")\
@@ -445,11 +432,11 @@ def update_review_endpoint(
         and review_update_request.done_flag is None:
             raise HTTPException(status_code=422, detail="復習回を指定する場合、対応状況も指定してください。")
 
-    # 3. 現在日時取得
+    # 2. 現在日時取得
     today = datetime.now(timezone.utc)
 
-    # 4. 復習情報更新
-    # 4.(1) 復習項目、復習内容詳細のいずれかが設定されている場合、メソッド呼び出し
+    # 3. 復習情報更新
+    # 3.(1) 復習項目、復習内容詳細のいずれかが設定されている場合、メソッド呼び出し
     updated_review: Review | None = None
     if (review_update_request.review_item is not None and review_update_request.review_item != "")\
         or (review_update_request.description is not None and review_update_request.description != ""):
@@ -461,12 +448,12 @@ def update_review_endpoint(
             review_item=review_update_request.review_item,
             description=review_update_request.description
         )
-        # 4.(2) 例外処理
+        # 3.(2) 例外処理
         if updated_review is None:
             raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
-        
-    # 5. 復習管理情報更新
-    # 5.(1) 復習回、対応済みフラグが設定されている場合、以下メソッド呼び出し
+
+    # 4. 復習管理情報更新
+    # 4.(1) 復習回、対応済みフラグが設定されている場合、以下メソッド呼び出し
     updated_review_management_list: list[ReviewManagement] = []
     update_review_management_flag = False
     if review_update_request.review_time is not None\
@@ -481,7 +468,7 @@ def update_review_endpoint(
         )
         update_review_management_flag = True
 
-    # 5.(2) 復習回が未設定、対応済みフラグが設定されている場合、以下メソッド呼び出し
+    # 4.(2) 復習回が未設定、対応済みフラグが設定されている場合、以下メソッド呼び出し
     update_all_review_management_flag = False
     if review_update_request.review_time is None\
         and review_update_request.done_flag is not None:
@@ -493,8 +480,8 @@ def update_review_endpoint(
             today=today
         )
         update_all_review_management_flag = True
-    
-    # 5.(3) 例外処理
+
+    # 4.(3) 例外処理
     if (update_review_management_flag or update_all_review_management_flag) and\
         updated_review_management_list == []:
         raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
@@ -506,7 +493,7 @@ def update_review_endpoint(
         for updated_review_management in updated_review_management_list:
             db.refresh(updated_review_management)
 
-    # 6. 返り値を設定
+    # 5. 返り値を設定
     return [
         ReviewUpdateResponse(
             review_item=updated_review.review_item if updated_review else None,
@@ -528,36 +515,32 @@ def update_review_endpoint(
 """
 @app.delete("/users/{user_id}/reviews/{review_id}")
 def delete_review_endpoint(
-    review_delete_request: ReviewDeleteRequest,
+    review_id: int,
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 ) -> ReviewDeleteResponse:
-    # 1. ユーザー存在チェック
-    if auth.delete_flag:
-        raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
-
-    # 2. 復習項目を削除
-    # 2.(1) 復習情報削除メソッド呼び出し
+    # 1. 復習項目を削除
+    # 1.(1) 復習情報削除メソッド呼び出し
     deleted_review_count = delete_review(
         db,
         user_id=auth.user_id,
-        review_id=review_delete_request.review_id
+        review_id=review_id
     )
 
-    # 2.(2) 復習管理情報削除メソッド呼び出し
+    # 1.(2) 復習管理情報削除メソッド呼び出し
     deleted_review_management_count = delete_review_management(
         db,
         user_id=auth.user_id,
-        review_id=review_delete_request.review_id
+        review_id=review_id
     )
 
-    # 2.(3) 例外処理
+    # 1.(3) 例外処理
     if deleted_review_count is None and deleted_review_management_count is None:
         raise HTTPException(status_code=404, detail="対象の復習項目は存在しません")
-    
+
     db.commit()
 
-    # 3. 返り値を設定
+    # 2. 返り値を設定
     return ReviewDeleteResponse(status=True)
 
 

@@ -25,7 +25,7 @@ from app.schemas import ReviewGetResponse, ReviewScheduleWithDoneFlag
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー作成.md
 """
 def create_user(
-    username: str,
+    user_name: str,
     hashed_password: str,
     admin_flag: bool,
     today: datetime
@@ -33,7 +33,7 @@ def create_user(
     # 1. ユーザー情報登録
     # 1.(1) USERテーブルに登録
     new_user = User(
-        username=username,
+        user_name=user_name,
         hashed_password=hashed_password,
         admin_flag=admin_flag,
         created_at=today,
@@ -85,13 +85,13 @@ def update_user(
 ===ユーザー情報削除===
 設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報削除.md
 """
-def delete_user(db: Session, user_name: str, today: datetime) -> User | None:
+def delete_user(db: Session, user_id: int, today: datetime) -> User | None:
     # 1. ユーザー情報削除
     # 1.(1) USERテーブルを更新
     # 更新対象を取得
     user = db.scalar(
         select(User).where(
-            User.user_name == user_name
+            User.id == user_id
         )
     )
     if not user:
@@ -122,6 +122,26 @@ def get_user(db: Session, user_name: str) -> User | None:
     if not user:
         return None  # ユーザーが見つからない場合はNoneを返す
     
+    # 2. 返り値を設定
+    return user
+
+
+"""
+===ユーザー情報取得（ID指定）===
+設計書：review-scheduler\設計書\CLUD\ユーザー操作\ユーザー情報取得（ID指定）.md
+"""
+def get_user_by_id(db: Session, user_id: int) -> User | None:
+    # 1. ユーザー情報取得
+    user = db.scalar(
+        select(User).where(
+            User.id == user_id,
+            User.delete_flag == False
+        )
+    )
+
+    if not user:
+        return None
+
     # 2. 返り値を設定
     return user
 
@@ -183,7 +203,7 @@ def create_review(
     new_review = Review(
         user_id=user_id,
         review_id=new_review_id,
-        review=review_item,
+        review_item=review_item,
         description=description,
         study_date=study_date,
         created_at=today,
@@ -215,7 +235,7 @@ def create_review_management(
         user_id=user_id,
         review_id=review_id,
         review_time=review_time,
-        review_date=review_date_list[review_time],
+        review_date=review_date_list[review_time - 1],
         done_flag=False,
         created_at=today,
         updated_at=today
@@ -400,7 +420,7 @@ def get_reviews(db: Session, user_id: int) -> list[ReviewGetResponse] | None:
     # 1. 復習項目取得
     # 1.(1) REVIEWテーブル、REVIEW_MANAGEMENTテーブルを結合して取得
     results = db.execute(
-        select(Review).join(
+        select(Review, ReviewManagement).join(
             ReviewManagement,
             (Review.user_id == ReviewManagement.user_id) &
             (Review.review_id == ReviewManagement.review_id)
