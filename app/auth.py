@@ -78,10 +78,7 @@ async def get_current_active_user(
     if user is None:
         raise credentials_exception
 
-    # 3. 削除済みユーザー確認
-    if user.delete_flag:
-        # 3.(1) 例外処理
-        raise HTTPException(status_code=400, detail="削除済みのユーザーです")
+    # 3.返り値を設定
     return UserValidationResponse(
         user_id=user.id,
         user_name=user.user_name,
