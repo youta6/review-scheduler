@@ -420,7 +420,7 @@ def get_reviews(db: Session, user_id: int) -> list[ReviewGetResponse] | None:
     # 1. 復習項目取得
     # 1.(1) REVIEWテーブル、REVIEW_MANAGEMENTテーブルを結合して取得
     results = db.execute(
-        select(Review).join(
+        select(Review, ReviewManagement).join(
             ReviewManagement,
             (Review.user_id == ReviewManagement.user_id) &
             (Review.review_id == ReviewManagement.review_id)
