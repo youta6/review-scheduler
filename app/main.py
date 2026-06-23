@@ -421,11 +421,7 @@ def update_review_endpoint(
     auth: Annotated[schemas.UserValidationResponse, Depends(get_current_active_user)],
     db: Session = Depends(get_db)
 )-> list[ReviewUpdateResponse]:
-    # 1. ユーザー存在チェック
-    if auth.delete_flag:
-        raise HTTPException(status_code=403, detail="削除済みユーザーのため更新できません")
-    
-    # 2. 入力値チェック
+    # 1. 入力値チェック
     # 復習項目、復習内容詳細、復習回、対応済みフラグのいずれも設定されていない
     if (review_update_request.review_item is None or review_update_request.review_item == "")\
         and (review_update_request.description is None or review_update_request.description == "")\
@@ -436,11 +432,11 @@ def update_review_endpoint(
         and review_update_request.done_flag is None:
             raise HTTPException(status_code=422, detail="復習回を指定する場合、対応状況も指定してください。")
 
-    # 3. 現在日時取得
+    # 2. 現在日時取得
     today = datetime.now(timezone.utc)
 
-    # 4. 復習情報更新
-    # 4.(1) 復習項目、復習内容詳細のいずれかが設定されている場合、メソッド呼び出し
+    # 3. 復習情報更新
+    # 3.(1) 復習項目、復習内容詳細のいずれかが設定されている場合、メソッド呼び出し
     updated_review: Review | None = None
     if (review_update_request.review_item is not None and review_update_request.review_item != "")\
         or (review_update_request.description is not None and review_update_request.description != ""):
@@ -452,12 +448,12 @@ def update_review_endpoint(
             review_item=review_update_request.review_item,
             description=review_update_request.description
         )
-        # 4.(2) 例外処理
+        # 3.(2) 例外処理
         if updated_review is None:
             raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
-        
-    # 5. 復習管理情報更新
-    # 5.(1) 復習回、対応済みフラグが設定されている場合、以下メソッド呼び出し
+
+    # 4. 復習管理情報更新
+    # 4.(1) 復習回、対応済みフラグが設定されている場合、以下メソッド呼び出し
     updated_review_management_list: list[ReviewManagement] = []
     update_review_management_flag = False
     if review_update_request.review_time is not None\
@@ -472,7 +468,7 @@ def update_review_endpoint(
         )
         update_review_management_flag = True
 
-    # 5.(2) 復習回が未設定、対応済みフラグが設定されている場合、以下メソッド呼び出し
+    # 4.(2) 復習回が未設定、対応済みフラグが設定されている場合、以下メソッド呼び出し
     update_all_review_management_flag = False
     if review_update_request.review_time is None\
         and review_update_request.done_flag is not None:
@@ -484,8 +480,8 @@ def update_review_endpoint(
             today=today
         )
         update_all_review_management_flag = True
-    
-    # 5.(3) 例外処理
+
+    # 4.(3) 例外処理
     if (update_review_management_flag or update_all_review_management_flag) and\
         updated_review_management_list == []:
         raise HTTPException(status_code=404, detail="対象の復習項目が見つかりませんでした")
@@ -497,7 +493,7 @@ def update_review_endpoint(
         for updated_review_management in updated_review_management_list:
             db.refresh(updated_review_management)
 
-    # 6. 返り値を設定
+    # 5. 返り値を設定
     return [
         ReviewUpdateResponse(
             review_item=updated_review.review_item if updated_review else None,
