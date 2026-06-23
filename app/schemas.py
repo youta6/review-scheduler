@@ -191,5 +191,5 @@ class ReviewDeleteResponse(BaseModel):
 スキーマ論理名：復習項目取得レスポンス
 """
 class ReviewGetResponse(ReviewScheduleWithDoneFlagBase):
-    review_id: int | None = Field(default=None, ge=1, le=3)
+    review_id: int | None = Field(default=None, ge=1, le=999)
     study_date: datetime | None = None
