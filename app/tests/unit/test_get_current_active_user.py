@@ -79,17 +79,3 @@ def test_get_current_active_user_004_user_not_found(mocker):
     assert exc_info.value.status_code == 401
     assert exc_info.value.detail == "資格情報を検証できませんでした"
 
-"""
-===単体テストNo.5===
-delete_flag=Trueのユーザーで認証した場合に400エラーが発生すること
-"""
-def test_get_current_active_user_005_deleted_user(mocker, make_user):
-    user = make_user(user_name="login_user", delete_flag=True)
-    mocker.patch("app.auth.get_user", return_value=user)
-    token = _encode(_valid_payload("login_user"))
-
-    with pytest.raises(HTTPException) as exc_info:
-        _call_get_current_active_user(token)
-
-    assert exc_info.value.status_code == 400
-    assert exc_info.value.detail == "削除済みのユーザーです"

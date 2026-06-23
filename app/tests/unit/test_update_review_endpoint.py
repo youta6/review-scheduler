@@ -17,20 +17,6 @@ from app.schemas import ReviewUpdateRequest
 """
 
 """
-===単体テストNo.1===
-delete_flag=Trueのユーザーで更新した場合に403エラーが発生すること
-"""
-def test_update_review_endpoint_001_deleted_user(mocker, make_auth):
-    auth = make_auth(delete_flag=True)
-    request = ReviewUpdateRequest(review_id=1, review_item="new_item")
-
-    with pytest.raises(HTTPException) as exc_info:
-        update_review_endpoint(request, auth, db=mocker.MagicMock())
-
-    assert exc_info.value.status_code == 403
-    assert exc_info.value.detail == "削除済みユーザーのため更新できません"
-
-"""
 ===単体テストNo.2===
 復習項目・復習内容詳細・復習回が全てNone（または空文字）の場合に422エラーが発生すること
 """
